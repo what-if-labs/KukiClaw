@@ -289,8 +289,7 @@ rm -rf ~/.openclaw
 ## Support
 
 - **Documentation:** [OpenClaw Docs](https://docs.openclaw.ai)
-- **Community:** [Discord](https://discord.com/invite/clawd)
-- **GitHub:** [what-if21/kukiclaw](https://github.com/what-if21/kukiclaw)
+- **GitHub:** [what-if-labs/kukiclaw](https://github.com/what-if-labs/KukiClaw)
 
 ---
 
