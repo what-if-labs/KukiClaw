@@ -2,7 +2,7 @@
 
 **OpenClaw + KūkiOS MCP Client - Messaging-only IoT monitoring**
 
-A pre-configured OpenClaw installation that connects to the KūkiOS MCP server. On first install, the bot asks for your credentials and starts operating as your IoT companion agent.
+A pre-configured OpenClaw installation that connects to the cloud-hosted KūkiOS MCP server. On first install, the bot asks for your credentials and starts operating as your IoT companion agent. **No local MCP server required!**
 
 ---
 
@@ -67,6 +67,8 @@ The wizard will:
 4. Configure OpenClaw with MCP client
 5. Start your IoT companion agent
 
+**Note:** KūkiOS MCP is cloud-hosted - no local server installation required!
+
 ### 4. Start KūkiClaw
 
 ```bash
@@ -78,7 +80,7 @@ openclaw start
 ## How It Works
 
 ```
-User → OpenClaw (MCP Client) → KūkiOS MCP Server (dashbeta.what-if.sg) → IoT Platform
+User → OpenClaw (MCP Client) → KūkiOS MCP Server (cloud-hosted) → IoT Platform
 ```
 
 ### First Install Flow
@@ -125,16 +127,9 @@ cat > ~/.openclaw/openclaw.json << 'EOF'
   "mcp": {
     "servers": {
       "kukios-mcp": {
-        "command": "python3",
-        "args": ["https://dashbeta.what-if.sg"],
-        "env": {
-          "KUKIOS_MCP_URL": "https://dashbeta.what-if.sg",
-          "KUKIOS_TOKEN": "your-jwt-token-here",
-          "CACHE_TTL": "300",
-          "POOL_CONNECTIONS": "10",
-          "POOL_MAXSIZE": "20",
-          "MAX_RETRIES": "3",
-          "REQUEST_TIMEOUT": "30"
+        "url": "https://dashbeta.what-if.sg",
+        "headers": {
+          "Authorization": "Bearer your-jwt-token-here"
         }
       }
     }

@@ -2,7 +2,7 @@
 """
 KukiClaw Setup Wizard
 Interactive setup for KūkiOS MCP client configuration.
-Connects to the remote Kukisense MCP server - no server installation required.
+Connects to the cloud-hosted KūkiOS MCP server at dashbeta.what-if.sg
 """
 
 import os
@@ -33,7 +33,7 @@ def get_input(prompt, default=None):
                 return value
 
 def test_connection(url, email, password):
-    """Test connection to IAQ Reporter and get JWT token"""
+    """Test connection to KūkiOS and get JWT token"""
     try:
         response = requests.post(
             f"{url}/api/auth/login",
@@ -57,25 +57,18 @@ def test_connection(url, email, password):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-def create_mcp_config(url, token, mcp_server_url):
-    """Create OpenClaw MCP client configuration"""
+def create_mcp_config(url, token):
+    """Create OpenClaw MCP client configuration for KūkiOS"""
     config = {
         "meta": {
             "lastTouchedVersion": "2026.4.22"
         },
         "mcp": {
             "servers": {
-                "kukisense-iaq": {
-                    "command": "python3",
-                    "args": [mcp_server_url],
-                    "env": {
-                        "IAQ_REPORTER_URL": url,
-                        "IAQ_TOKEN": token,
-                        "CACHE_TTL": "300",
-                        "POOL_CONNECTIONS": "10",
-                        "POOL_MAXSIZE": "20",
-                        "MAX_RETRIES": "3",
-                        "REQUEST_TIMEOUT": "30"
+                "kukios-mcp": {
+                    "url": url,
+                    "headers": {
+                        "Authorization": f"Bearer {token}"
                     }
                 }
             }
@@ -111,13 +104,9 @@ def main():
     user = result.get("user", {})
     print(f"✅ Connected! Welcome, {user.get('firstName', 'User')}")
     
-    # Step 4: Configure MCP Client
-    print("\n🌐 Step 4: MCP Client Configuration")
-    mcp_url = get_input("KūkiOS MCP Endpoint", url)
-    
-    # Step 5: Create OpenClaw Config
-    print("\n⚙️  Step 5: Creating OpenClaw Configuration...")
-    config = create_mcp_config(url, token, mcp_url)
+    # Step 4: Create OpenClaw Config
+    print("\n⚙️  Step 4: Creating OpenClaw Configuration...")
+    config = create_mcp_config(url, token)
     
     openclaw_dir = Path.home() / ".openclaw"
     openclaw_dir.mkdir(exist_ok=True)
@@ -129,15 +118,17 @@ def main():
     os.chmod(config_path, 0o600)
     print(f"✅ Configuration saved to: {config_path}")
     
-    # Step 6: Summary
+    # Step 5: Summary
     print("\n" + "="*60)
     print("🎉 Setup Complete!")
     print("="*60)
     print(f"""
 Your KūkiClaw bot is now configured with:
-  • KūkiOS MCP: {mcp_url}
+  • KūkiOS MCP: {url}
   • User: {email}
   • Config: {config_path}
+
+KūkiOS MCP is cloud-hosted - no local server required!
 
 To start your IAQ companion agent:
   1. cd {Path(__file__).parent.parent}
@@ -147,6 +138,7 @@ Example queries:
   • "What's the CO2 level in the meeting room?"
   • "Show me all sensors with poor air quality"
   • "Which devices are offline?"
+  • "Get IAQ health score for device X"
 """)
 
 if __name__ == "__main__":
