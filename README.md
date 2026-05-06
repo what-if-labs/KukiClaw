@@ -9,7 +9,7 @@ A pre-configured OpenClaw installation that connects to the KūkiOS MCP server. 
 ## 🚀 One-Line Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/what-if21/KukiClaw/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/install.sh | bash
 ```
 
 That's it! The installer will:
@@ -43,7 +43,7 @@ If you prefer to install manually:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/what-if21/KukiClaw.git
+git clone https://github.com/what-if-labs/KukiClaw.git
 cd kukiclaw
 ```
 
@@ -290,7 +290,7 @@ rm -rf ~/.openclaw
 
 - **Documentation:** [OpenClaw Docs](https://docs.openclaw.ai)
 - **Community:** [Discord](https://discord.com/invite/clawd)
-- **GitHub:** [what-if21/KukiClaw](https://github.com/what-if21/KukiClaw)
+- **GitHub:** [what-if-labs/KukiClaw](https://github.com/what-if-labs/KukiClaw)
 
 ---
 
