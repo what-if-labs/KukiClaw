@@ -2,12 +2,12 @@
 """
 KukiClaw Setup Wizard
 Interactive setup for Kukisense IAQ MCP client configuration.
+Connects to the remote Kukisense MCP server - no server installation required.
 """
 
 import os
 import sys
 import json
-import subprocess
 import requests
 from pathlib import Path
 
@@ -57,7 +57,7 @@ def test_connection(url, email, password):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-def create_mcp_config(url, token, mcp_server_path):
+def create_mcp_config(url, token, mcp_server_url):
     """Create OpenClaw MCP client configuration"""
     config = {
         "meta": {
@@ -66,8 +66,8 @@ def create_mcp_config(url, token, mcp_server_path):
         "mcp": {
             "servers": {
                 "kukisense-iaq": {
-                    "command": f"{mcp_server_path}/venv/bin/python3",
-                    "args": [f"{mcp_server_path}/server.py"],
+                    "command": "python3",
+                    "args": [mcp_server_url],
                     "env": {
                         "IAQ_REPORTER_URL": url,
                         "IAQ_TOKEN": token,
@@ -82,33 +82,6 @@ def create_mcp_config(url, token, mcp_server_path):
         }
     }
     return config
-
-def setup_mcp_server():
-    """Setup Kukisense IAQ MCP Server"""
-    print("\n📦 Setting up Kukisense IAQ MCP Server...")
-    
-    mcp_dir = Path("kukisense-mcp-server")
-    
-    if not mcp_dir.exists():
-        print("Cloning MCP server repository...")
-        subprocess.run([
-            "git", "clone", 
-            "https://github.com/what-if21/iaq-reporter-mcp.git",
-            str(mcp_dir)
-        ], check=True)
-    
-    os.chdir(mcp_dir)
-    
-    if not Path("venv").exists():
-        print("Creating Python virtual environment...")
-        subprocess.run([sys.executable, "-m", "venv", "venv"], check=True)
-    
-    print("Installing dependencies...")
-    pip_path = "venv/bin/pip" if os.name != "nt" else "venv\\Scripts\\pip"
-    subprocess.run([pip_path, "install", "-r", "requirements.txt"], check=True)
-    
-    os.chdir("..")
-    return str(mcp_dir.absolute())
 
 def main():
     print_header()
@@ -138,14 +111,13 @@ def main():
     user = result.get("user", {})
     print(f"✅ Connected! Welcome, {user.get('firstName', 'User')}")
     
-    # Step 4: Setup MCP Server
-    print("\n📦 Step 4: Setting up MCP Server...")
-    mcp_path = setup_mcp_server()
-    print(f"✅ MCP Server ready at: {mcp_path}")
+    # Step 4: Get MCP Server URL
+    print("\n🌐 Step 4: Kukisense MCP Server")
+    mcp_url = get_input("Kukisense MCP Server URL", "https://kukisense-mcp.what-if.sg")
     
     # Step 5: Create OpenClaw Config
     print("\n⚙️  Step 5: Creating OpenClaw Configuration...")
-    config = create_mcp_config(url, token, mcp_path)
+    config = create_mcp_config(url, token, mcp_url)
     
     openclaw_dir = Path.home() / ".openclaw"
     openclaw_dir.mkdir(exist_ok=True)
@@ -163,9 +135,9 @@ def main():
     print("="*60)
     print(f"""
 Your KukiClaw bot is now configured with:
-  • Server: {url}
+  • IAQ Reporter: {url}
+  • MCP Server: {mcp_url}
   • User: {email}
-  • MCP Server: {mcp_path}
   • Config: {config_path}
 
 To start your IAQ companion agent:

@@ -2,7 +2,7 @@
 
 **OpenClaw + Kukisense IAQ Companion Agent - Messaging-only IoT monitoring**
 
-A pre-configured OpenClaw installation with built-in Kukisense IAQ MCP client. On first install, the bot asks for your credentials and starts operating as your IAQ companion agent.
+A pre-configured OpenClaw installation that connects to the remote Kukisense IAQ MCP server. On first install, the bot asks for your credentials and starts operating as your IAQ companion agent.
 
 ---
 
@@ -10,7 +10,7 @@ A pre-configured OpenClaw installation with built-in Kukisense IAQ MCP client. O
 
 After setup, you'll have:
 - ✅ OpenClaw AI assistant running locally
-- ✅ Kukisense IAQ MCP client pre-configured and ready
+- ✅ MCP client configured to connect to remote Kukisense IAQ MCP server
 - ✅ Natural language queries for your IoT devices
 - ✅ Real-time sensor data, historical analysis, and device control
 - ✅ Messaging integration (Telegram, Discord, etc.)
@@ -48,7 +48,7 @@ The wizard will:
 1. Ask for your IAQ Reporter URL
 2. Ask for your email and password
 3. Test the connection
-4. Setup the MCP server
+4. Ask for the Kukisense MCP Server URL
 5. Configure OpenClaw with MCP client
 6. Start your IAQ companion agent
 
@@ -63,7 +63,7 @@ openclaw start
 ## How It Works
 
 ```
-User → OpenClaw (MCP Client) → Kukisense IAQ MCP Server → IAQ Reporter Platform
+User → OpenClaw (MCP Client) → Remote Kukisense IAQ MCP Server → IAQ Reporter Platform
 ```
 
 ### First Install Flow
@@ -110,8 +110,8 @@ cat > ~/.openclaw/openclaw.json << 'EOF'
   "mcp": {
     "servers": {
       "kukisense-iaq": {
-        "command": "/path/to/kukiclaw/kukisense-mcp-server/venv/bin/python3",
-        "args": ["/path/to/kukiclaw/kukisense-mcp-server/server.py"],
+        "command": "python3",
+        "args": ["https://kukisense-mcp.what-if.sg"],
         "env": {
           "IAQ_REPORTER_URL": "https://dashbeta.what-if.sg",
           "IAQ_TOKEN": "your-jwt-token-here",
@@ -227,11 +227,11 @@ curl -X POST https://dashbeta.what-if.sg/api/auth/login \
 ### MCP Client Not Starting
 
 ```bash
-# Check MCP server is running
-cd kukisense-mcp-server
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-python3 server.py
+# Check MCP server is accessible
+curl https://kukisense-mcp.what-if.sg/health
+
+# Check OpenClaw logs
+openclaw logs
 ```
 
 ### Connection Issues
