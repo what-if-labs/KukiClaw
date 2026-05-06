@@ -26,7 +26,7 @@ npm install -g openclaw@2026.4.22
 echo "📦 Cloning KukiClaw..."
 cd /tmp
 git clone https://github.com/what-if-labs/KukiClaw.git kukiclaw-setup
-cd kukiclaw
+cd kukiclaw-setup
 
 # Run setup wizard
 echo "🤖 Starting setup wizard..."
