@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 KukiClaw Setup Wizard
-Interactive setup for Kukisense IAQ MCP client configuration.
+Interactive setup for KūkiOS MCP client configuration.
 Connects to the remote Kukisense MCP server - no server installation required.
 """
 
