@@ -6,6 +6,20 @@ A pre-configured OpenClaw installation that connects to the KūkiOS MCP server. 
 
 ---
 
+## 🚀 One-Line Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/what-if21/kukiclaw/main/install.sh | bash
+```
+
+That's it! The installer will:
+1. Install OpenClaw
+2. Clone KūkiClaw
+3. Run the setup wizard
+4. Start your IoT companion agent
+
+---
+
 ## What You'll Get
 
 After setup, you'll have:
@@ -22,7 +36,9 @@ After setup, you'll have:
 
 ---
 
-## Quick Start
+## Manual Installation
+
+If you prefer to install manually:
 
 ### 1. Clone the Repository
 
