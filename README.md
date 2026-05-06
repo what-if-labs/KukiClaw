@@ -1,16 +1,16 @@
 # KukiClaw
 
-**OpenClaw + Kukisense IAQ MCP Client - Messaging-only IoT monitoring**
+**OpenClaw + Kukisense IAQ Companion Agent - Messaging-only IoT monitoring**
 
-A pre-configured OpenClaw installation that connects to the Kukisense IAQ MCP server for natural language IoT device monitoring and control.
+A pre-configured OpenClaw installation with built-in Kukisense IAQ MCP client. On first install, the bot asks for your credentials and starts operating as your IAQ companion agent.
 
 ---
 
 ## What You'll Get
 
-After this installation, you'll have:
+After setup, you'll have:
 - ✅ OpenClaw AI assistant running locally
-- ✅ MCP client configured to connect to Kukisense IAQ MCP server
+- ✅ Kukisense IAQ MCP client pre-configured and ready
 - ✅ Natural language queries for your IoT devices
 - ✅ Real-time sensor data, historical analysis, and device control
 - ✅ Messaging integration (Telegram, Discord, etc.)
@@ -34,33 +34,70 @@ cd kukiclaw
 ### 2. Install OpenClaw
 
 ```bash
-# Install OpenClaw globally
 npm install -g openclaw
-
-# Verify installation
-openclaw --version
 ```
 
-### 3. Setup Kukisense IAQ MCP Server
-
-The MCP server is hosted separately. Set it up first:
+### 3. Run Setup Wizard
 
 ```bash
-# Clone the MCP server
-git clone https://github.com/what-if21/iaq-reporter-mcp.git
-cd iaq-reporter-mcp
-
-# Create Python virtual environment
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+cd setup
+python3 setup_wizard.py
 ```
 
-### 4. Configure OpenClaw MCP Client
+The wizard will:
+1. Ask for your IAQ Reporter URL
+2. Ask for your email and password
+3. Test the connection
+4. Setup the MCP server
+5. Configure OpenClaw with MCP client
+6. Start your IAQ companion agent
 
-Create or update your OpenClaw configuration:
+### 4. Start KukiClaw
+
+```bash
+openclaw start
+```
+
+---
+
+## How It Works
+
+```
+User → OpenClaw (MCP Client) → Kukisense IAQ MCP Server → IAQ Reporter Platform
+```
+
+### First Install Flow
+
+1. **Clone & Install** - Get KukiClaw and OpenClaw
+2. **Run Wizard** - Answer a few questions about your IAQ Reporter
+3. **Auto-Configure** - MCP client is fixed to your instance
+4. **Start Chatting** - Your IAQ companion agent is ready!
+
+### Credential Storage
+
+- Credentials are stored in `~/.openclaw/openclaw.json`
+- File permissions are set to `600` (owner only)
+- JWT tokens are auto-refreshed by the MCP server
+
+---
+
+## Configuration
+
+### Environment Variables (Optional)
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `IAQ_REPORTER_URL` | Yes | - | IAQ Reporter API URL |
+| `IAQ_TOKEN` | No | - | Pre-authenticated JWT token |
+| `CACHE_TTL` | No | 300 | Cache duration (seconds) |
+| `POOL_CONNECTIONS` | No | 10 | Connection pool size |
+| `POOL_MAXSIZE` | No | 20 | Max pool size |
+| `MAX_RETRIES` | No | 3 | Retry attempts |
+| `REQUEST_TIMEOUT` | No | 30 | Request timeout (seconds) |
+
+### Manual Configuration
+
+If you prefer to configure manually:
 
 ```bash
 mkdir -p ~/.openclaw
@@ -73,8 +110,8 @@ cat > ~/.openclaw/openclaw.json << 'EOF'
   "mcp": {
     "servers": {
       "kukisense-iaq": {
-        "command": "/absolute/path/to/iaq-reporter-mcp/venv/bin/python3",
-        "args": ["/absolute/path/to/iaq-reporter-mcp/server.py"],
+        "command": "/path/to/kukiclaw/kukisense-mcp-server/venv/bin/python3",
+        "args": ["/path/to/kukiclaw/kukisense-mcp-server/server.py"],
         "env": {
           "IAQ_REPORTER_URL": "https://dashbeta.what-if.sg",
           "IAQ_TOKEN": "your-jwt-token-here",
@@ -91,48 +128,6 @@ cat > ~/.openclaw/openclaw.json << 'EOF'
 EOF
 
 chmod 600 ~/.openclaw/openclaw.json
-```
-
-### 5. Start OpenClaw
-
-```bash
-# Start OpenClaw with the Kukisense MCP client
-openclaw start
-
-# Or run in interactive mode
-openclaw chat
-```
-
----
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `IAQ_REPORTER_URL` | Yes | - | IAQ Reporter API URL |
-| `IAQ_TOKEN` | No | - | Pre-authenticated JWT token |
-| `CACHE_TTL` | No | 300 | Cache duration (seconds) |
-| `POOL_CONNECTIONS` | No | 10 | Connection pool size |
-| `POOL_MAXSIZE` | No | 20 | Max pool size |
-| `MAX_RETRIES` | No | 3 | Retry attempts |
-| `REQUEST_TIMEOUT` | No | 30 | Request timeout (seconds) |
-
-### Getting a JWT Token
-
-**Option 1: Login via MCP (recommended)**
-```bash
-mcporter call --stdio "python3 server.py" auth_login \
-  email="your-email" \
-  password="your-password"
-```
-
-**Option 2: Manual API call**
-```bash
-curl -X POST https://dashbeta.what-if.sg/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"your-email","password":"your-password"}'
 ```
 
 ---
@@ -220,30 +215,34 @@ curl -X POST https://dashbeta.what-if.sg/api/auth/login \
 
 ## Troubleshooting
 
+### Setup Wizard Fails
+
+```bash
+# Test connection manually
+curl -X POST https://dashbeta.what-if.sg/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"your-email","password":"your-password"}'
+```
+
+### MCP Client Not Starting
+
+```bash
+# Check MCP server is running
+cd kukisense-mcp-server
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python3 server.py
+```
+
 ### Connection Issues
 
 ```bash
 # Test IAQ Reporter connection
 curl https://dashbeta.what-if.sg/health
 
-# Check MCP server logs
+# Check OpenClaw logs
 openclaw logs
 ```
-
-### MCP Client Not Starting
-
-```bash
-# Verify MCP server is running
-cd /path/to/iaq-reporter-mcp
-source venv/bin/activate
-python3 server.py
-```
-
-### Authentication Failed
-
-- Verify your IAQ Reporter credentials
-- Check if your account has tenant access
-- Ensure IAQ Reporter server is running
 
 ---
 
@@ -263,8 +262,8 @@ python3 server.py
 # Remove OpenClaw
 npm uninstall -g openclaw
 
-# Remove MCP server
-rm -rf /path/to/iaq-reporter-mcp
+# Remove KukiClaw
+rm -rf /path/to/kukiclaw
 
 # Remove configuration
 rm -rf ~/.openclaw
