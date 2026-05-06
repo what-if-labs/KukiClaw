@@ -1,8 +1,8 @@
 # KukiClaw
 
-**OpenClaw + Kukisense IAQ MCP - Messaging-only IoT monitoring**
+**OpenClaw + Kukisense IAQ MCP Client - Messaging-only IoT monitoring**
 
-A pre-configured OpenClaw installation with the Kukisense IAQ Reporter MCP server for natural language IoT device monitoring and control.
+A pre-configured OpenClaw installation that connects to the Kukisense IAQ MCP server for natural language IoT device monitoring and control.
 
 ---
 
@@ -10,7 +10,7 @@ A pre-configured OpenClaw installation with the Kukisense IAQ Reporter MCP serve
 
 After this installation, you'll have:
 - ✅ OpenClaw AI assistant running locally
-- ✅ Kukisense IAQ MCP server prebuilt and ready
+- ✅ MCP client configured to connect to Kukisense IAQ MCP server
 - ✅ Natural language queries for your IoT devices
 - ✅ Real-time sensor data, historical analysis, and device control
 - ✅ Messaging integration (Telegram, Discord, etc.)
@@ -41,10 +41,14 @@ npm install -g openclaw
 openclaw --version
 ```
 
-### 3. Setup Kukisense MCP Server
+### 3. Setup Kukisense IAQ MCP Server
+
+The MCP server is hosted separately. Set it up first:
 
 ```bash
-cd kukisense-mcp
+# Clone the MCP server
+git clone https://github.com/what-if21/iaq-reporter-mcp.git
+cd iaq-reporter-mcp
 
 # Create Python virtual environment
 python3 -m venv venv
@@ -54,7 +58,7 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. Configure OpenClaw
+### 4. Configure OpenClaw MCP Client
 
 Create or update your OpenClaw configuration:
 
@@ -69,8 +73,8 @@ cat > ~/.openclaw/openclaw.json << 'EOF'
   "mcp": {
     "servers": {
       "kukisense-iaq": {
-        "command": "/absolute/path/to/kukiclaw/kukisense-mcp/venv/bin/python3",
-        "args": ["/absolute/path/to/kukiclaw/kukisense-mcp/server.py"],
+        "command": "/absolute/path/to/iaq-reporter-mcp/venv/bin/python3",
+        "args": ["/absolute/path/to/iaq-reporter-mcp/server.py"],
         "env": {
           "IAQ_REPORTER_URL": "https://dashbeta.what-if.sg",
           "IAQ_TOKEN": "your-jwt-token-here",
@@ -92,7 +96,7 @@ chmod 600 ~/.openclaw/openclaw.json
 ### 5. Start OpenClaw
 
 ```bash
-# Start OpenClaw with the Kukisense MCP
+# Start OpenClaw with the Kukisense MCP client
 openclaw start
 
 # Or run in interactive mode
@@ -226,11 +230,11 @@ curl https://dashbeta.what-if.sg/health
 openclaw logs
 ```
 
-### MCP Server Not Starting
+### MCP Client Not Starting
 
 ```bash
-# Verify MCP server is installed
-cd kukisense-mcp
+# Verify MCP server is running
+cd /path/to/iaq-reporter-mcp
 source venv/bin/activate
 python3 server.py
 ```
@@ -260,7 +264,7 @@ python3 server.py
 npm uninstall -g openclaw
 
 # Remove MCP server
-rm -rf kukisense-mcp
+rm -rf /path/to/iaq-reporter-mcp
 
 # Remove configuration
 rm -rf ~/.openclaw
