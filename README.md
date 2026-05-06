@@ -50,7 +50,7 @@ cd kukiclaw
 ### 2. Install OpenClaw
 
 ```bash
-npm install -g openclaw
+npm install -g openclaw@2026.4.22
 ```
 
 ### 3. Run Setup Wizard

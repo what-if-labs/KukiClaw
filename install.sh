@@ -19,8 +19,8 @@ if ! command -v python3 &> /dev/null; then
 fi
 
 # Install OpenClaw
-echo "📦 Installing OpenClaw..."
-npm install -g openclaw
+echo "📦 Installing OpenClaw v2026.4.22..."
+npm install -g openclaw@2026.4.22
 
 # Clone KukiClaw
 echo "📦 Cloning KukiClaw..."
