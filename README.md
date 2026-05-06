@@ -61,7 +61,7 @@ python3 setup_wizard.py
 ```
 
 The wizard will:
-1. Ask for your KūkiOS MCP Server URL
+1. Ask for your KūkiOS MCP Server URL (default: `https://dashbeta.what-if.sg`)
 2. Ask for your email and password
 3. Test the connection
 4. Configure OpenClaw with MCP client
@@ -78,7 +78,7 @@ openclaw start
 ## How It Works
 
 ```
-User → OpenClaw (MCP Client) → KūkiOS MCP Server → IoT Platform
+User → OpenClaw (MCP Client) → KūkiOS MCP Server (dashbeta.what-if.sg) → IoT Platform
 ```
 
 ### First Install Flow
@@ -102,7 +102,7 @@ User → OpenClaw (MCP Client) → KūkiOS MCP Server → IoT Platform
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `KUKIOS_MCP_URL` | Yes | - | KūkiOS MCP Server URL |
+| `KUKIOS_MCP_URL` | Yes | `https://dashbeta.what-if.sg` | KūkiOS MCP Server URL |
 | `KUKIOS_TOKEN` | No | - | Pre-authenticated JWT token |
 | `CACHE_TTL` | No | 300 | Cache duration (seconds) |
 | `POOL_CONNECTIONS` | No | 10 | Connection pool size |
@@ -126,9 +126,9 @@ cat > ~/.openclaw/openclaw.json << 'EOF'
     "servers": {
       "kukios-mcp": {
         "command": "python3",
-        "args": ["https://kukios.what-if.sg"],
+        "args": ["https://dashbeta.what-if.sg"],
         "env": {
-          "KUKIOS_MCP_URL": "https://kukios.what-if.sg",
+          "KUKIOS_MCP_URL": "https://dashbeta.what-if.sg",
           "KUKIOS_TOKEN": "your-jwt-token-here",
           "CACHE_TTL": "300",
           "POOL_CONNECTIONS": "10",
@@ -234,7 +234,7 @@ chmod 600 ~/.openclaw/openclaw.json
 
 ```bash
 # Test connection manually
-curl -X POST https://kukios.what-if.sg/api/auth/login \
+curl -X POST https://dashbeta.what-if.sg/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"your-email","password":"your-password"}'
 ```
@@ -243,7 +243,7 @@ curl -X POST https://kukios.what-if.sg/api/auth/login \
 
 ```bash
 # Check MCP server is accessible
-curl https://kukios.what-if.sg/health
+curl https://dashbeta.what-if.sg/health
 
 # Check OpenClaw logs
 openclaw logs
@@ -253,7 +253,7 @@ openclaw logs
 
 ```bash
 # Test KūkiOS connection
-curl https://kukios.what-if.sg/health
+curl https://dashbeta.what-if.sg/health
 
 # Check OpenClaw logs
 openclaw logs
@@ -290,7 +290,7 @@ rm -rf ~/.openclaw
 
 - **Documentation:** [OpenClaw Docs](https://docs.openclaw.ai)
 - **Community:** [Discord](https://discord.com/invite/clawd)
-- **GitHub:** [what-if21/kukiclaw](https://github.com/what-if21/kukiclaw)
+- **GitHub:** [what-if21/KukiClaw](https://github.com/what-if21/KukiClaw)
 
 ---
 

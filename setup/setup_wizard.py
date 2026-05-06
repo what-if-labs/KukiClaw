@@ -91,7 +91,7 @@ def main():
     
     # Step 1: Get KūkiOS MCP Server URL
     print("🌐 Step 1: KūkiOS MCP Server")
-    url = get_input("KūkiOS MCP Server URL", "https://kukios.what-if.sg")
+    url = get_input("KūkiOS MCP Server URL", "https://dashbeta.what-if.sg")
     
     # Step 2: Get Credentials
     print("\n🔐 Step 2: Your Credentials")
