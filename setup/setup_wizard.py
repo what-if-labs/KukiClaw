@@ -15,8 +15,8 @@ def print_header():
     print("""
 ╔══════════════════════════════════════════════════════════╗
 ║                                                          ║
-║   🤖  KukiClaw Setup Wizard                              ║
-║   OpenClaw + Kukisense IAQ Companion Agent               ║
+║   🤖  KūkiClaw Setup Wizard                              ║
+║   OpenClaw + KūkiOS MCP Client                           ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
 """)
@@ -86,12 +86,12 @@ def create_mcp_config(url, token, mcp_server_url):
 def main():
     print_header()
     
-    print("This wizard will set up KukiClaw as your IAQ companion agent.")
-    print("You'll need your Kukisense IAQ Reporter credentials.\n")
+    print("This wizard will set up KūkiClaw connected to KūkiOS MCP.")
+    print("You'll need your KūkiOS credentials.\n")
     
-    # Step 1: Get IAQ Reporter URL
-    print("🌐 Step 1: IAQ Reporter Server")
-    url = get_input("IAQ Reporter URL", "https://dashbeta.what-if.sg")
+    # Step 1: Get KūkiOS MCP Server URL
+    print("🌐 Step 1: KūkiOS MCP Server")
+    url = get_input("KūkiOS MCP Server URL", "https://kukios.what-if.sg")
     
     # Step 2: Get Credentials
     print("\n🔐 Step 2: Your Credentials")
@@ -111,9 +111,9 @@ def main():
     user = result.get("user", {})
     print(f"✅ Connected! Welcome, {user.get('firstName', 'User')}")
     
-    # Step 4: Get MCP Server URL
-    print("\n🌐 Step 4: Kukisense MCP Server")
-    mcp_url = get_input("Kukisense MCP Server URL", "https://kukisense-mcp.what-if.sg")
+    # Step 4: Configure MCP Client
+    print("\n🌐 Step 4: MCP Client Configuration")
+    mcp_url = get_input("KūkiOS MCP Endpoint", url)
     
     # Step 5: Create OpenClaw Config
     print("\n⚙️  Step 5: Creating OpenClaw Configuration...")
@@ -134,9 +134,8 @@ def main():
     print("🎉 Setup Complete!")
     print("="*60)
     print(f"""
-Your KukiClaw bot is now configured with:
-  • IAQ Reporter: {url}
-  • MCP Server: {mcp_url}
+Your KūkiClaw bot is now configured with:
+  • KūkiOS MCP: {mcp_url}
   • User: {email}
   • Config: {config_path}
 

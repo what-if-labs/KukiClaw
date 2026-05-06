@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🤖 KukiClaw Installer"
+echo "🤖 KūkiClaw Installer"
 echo "===================="
 
 # Check prerequisites

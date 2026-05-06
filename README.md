@@ -1,8 +1,8 @@
-# KukiClaw
+# KūkiClaw
 
-**OpenClaw + Kukisense IAQ Companion Agent - Messaging-only IoT monitoring**
+**OpenClaw + KūkiOS MCP Client - Messaging-only IoT monitoring**
 
-A pre-configured OpenClaw installation that connects to the remote Kukisense IAQ MCP server. On first install, the bot asks for your credentials and starts operating as your IAQ companion agent.
+A pre-configured OpenClaw installation that connects to the KūkiOS MCP server. On first install, the bot asks for your credentials and starts operating as your IoT companion agent.
 
 ---
 
@@ -10,7 +10,7 @@ A pre-configured OpenClaw installation that connects to the remote Kukisense IAQ
 
 After setup, you'll have:
 - ✅ OpenClaw AI assistant running locally
-- ✅ MCP client configured to connect to remote Kukisense IAQ MCP server
+- ✅ MCP client configured to connect to KūkiOS MCP server
 - ✅ Natural language queries for your IoT devices
 - ✅ Real-time sensor data, historical analysis, and device control
 - ✅ Messaging integration (Telegram, Discord, etc.)
@@ -45,14 +45,13 @@ python3 setup_wizard.py
 ```
 
 The wizard will:
-1. Ask for your IAQ Reporter URL
+1. Ask for your KūkiOS MCP Server URL
 2. Ask for your email and password
 3. Test the connection
-4. Ask for the Kukisense MCP Server URL
-5. Configure OpenClaw with MCP client
-6. Start your IAQ companion agent
+4. Configure OpenClaw with MCP client
+5. Start your IoT companion agent
 
-### 4. Start KukiClaw
+### 4. Start KūkiClaw
 
 ```bash
 openclaw start
@@ -63,15 +62,15 @@ openclaw start
 ## How It Works
 
 ```
-User → OpenClaw (MCP Client) → Remote Kukisense IAQ MCP Server → IAQ Reporter Platform
+User → OpenClaw (MCP Client) → KūkiOS MCP Server → IoT Platform
 ```
 
 ### First Install Flow
 
-1. **Clone & Install** - Get KukiClaw and OpenClaw
-2. **Run Wizard** - Answer a few questions about your IAQ Reporter
+1. **Clone & Install** - Get KūkiClaw and OpenClaw
+2. **Run Wizard** - Answer a few questions about your KūkiOS instance
 3. **Auto-Configure** - MCP client is fixed to your instance
-4. **Start Chatting** - Your IAQ companion agent is ready!
+4. **Start Chatting** - Your IoT companion agent is ready!
 
 ### Credential Storage
 
@@ -87,8 +86,8 @@ User → OpenClaw (MCP Client) → Remote Kukisense IAQ MCP Server → IAQ Repor
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `IAQ_REPORTER_URL` | Yes | - | IAQ Reporter API URL |
-| `IAQ_TOKEN` | No | - | Pre-authenticated JWT token |
+| `KUKIOS_MCP_URL` | Yes | - | KūkiOS MCP Server URL |
+| `KUKIOS_TOKEN` | No | - | Pre-authenticated JWT token |
 | `CACHE_TTL` | No | 300 | Cache duration (seconds) |
 | `POOL_CONNECTIONS` | No | 10 | Connection pool size |
 | `POOL_MAXSIZE` | No | 20 | Max pool size |
@@ -109,12 +108,12 @@ cat > ~/.openclaw/openclaw.json << 'EOF'
   },
   "mcp": {
     "servers": {
-      "kukisense-iaq": {
+      "kukios-mcp": {
         "command": "python3",
-        "args": ["https://kukisense-mcp.what-if.sg"],
+        "args": ["https://kukios.what-if.sg"],
         "env": {
-          "IAQ_REPORTER_URL": "https://dashbeta.what-if.sg",
-          "IAQ_TOKEN": "your-jwt-token-here",
+          "KUKIOS_MCP_URL": "https://kukios.what-if.sg",
+          "KUKIOS_TOKEN": "your-jwt-token-here",
           "CACHE_TTL": "300",
           "POOL_CONNECTIONS": "10",
           "POOL_MAXSIZE": "20",
@@ -154,7 +153,7 @@ chmod 600 ~/.openclaw/openclaw.json
 
 | Tool | Description |
 |------|-------------|
-| `list_alerts` | List IAQ alerts |
+| `list_alerts` | List IoT alerts |
 | `acknowledge_alert` | Acknowledge alert |
 | `resolve_alert` | Resolve alert |
 | `get_realtime_status` | Get system status |
@@ -219,7 +218,7 @@ chmod 600 ~/.openclaw/openclaw.json
 
 ```bash
 # Test connection manually
-curl -X POST https://dashbeta.what-if.sg/api/auth/login \
+curl -X POST https://kukios.what-if.sg/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"your-email","password":"your-password"}'
 ```
@@ -228,7 +227,7 @@ curl -X POST https://dashbeta.what-if.sg/api/auth/login \
 
 ```bash
 # Check MCP server is accessible
-curl https://kukisense-mcp.what-if.sg/health
+curl https://kukios.what-if.sg/health
 
 # Check OpenClaw logs
 openclaw logs
@@ -237,8 +236,8 @@ openclaw logs
 ### Connection Issues
 
 ```bash
-# Test IAQ Reporter connection
-curl https://dashbeta.what-if.sg/health
+# Test KūkiOS connection
+curl https://kukios.what-if.sg/health
 
 # Check OpenClaw logs
 openclaw logs
@@ -262,7 +261,7 @@ openclaw logs
 # Remove OpenClaw
 npm uninstall -g openclaw
 
-# Remove KukiClaw
+# Remove KūkiClaw
 rm -rf /path/to/kukiclaw
 
 # Remove configuration
