@@ -23,23 +23,24 @@ def print_header():
 
 def get_input(prompt, default=None):
     """Get user input with optional default - ensures terminal input"""
-    # Force terminal input
+    # Force terminal input when available
     try:
         tty = open('/dev/tty', 'r')
-    except:
-        tty = sys.stdin
-    
-    if default:
-        value = input(f"{prompt} [{default}]: ", tty).strip()
+        if default:
+            value = input(f"{prompt} [{default}]: ").strip()
+        else:
+            value = input(f"{prompt}: ").strip()
         tty.close()
-        return value if value else default
-    else:
-        while True:
-            value = input(f"{prompt}: ", tty).strip()
-            tty.close()
-            if value:
-                return value
-            tty = open('/dev/tty', 'r')
+    except:
+        # Fallback to stdin
+        if default:
+            value = input(f"{prompt} [{default}]: ").strip()
+        else:
+            value = input(f"{prompt}: ").strip()
+    
+    if default and not value:
+        return default
+    return value
 
 def test_connection(url, email, password):
     """Test connection to KūkiOS and get JWT token"""
@@ -47,6 +48,7 @@ def test_connection(url, email, password):
         response = requests.post(
             f"{url}/api/auth/login",
             json={"email": email, "password": password},
+            headers={"Content-Type": "application/json"},
             timeout=10
         )
         if response.status_code == 200:
