@@ -3,8 +3,6 @@
 # Usage: curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/install.sh | bash
 # Auto-installs all required packages on fresh Linux server
 
-set -e
-
 echo "🤖 KūkiClaw Installer"
 echo "===================="
 
@@ -22,10 +20,19 @@ echo "🖥️  Detected: $OS $OS_VERSION"
 
 # Install Node.js if not present
 if ! command -v node &> /dev/null; then
-    echo "📦 Installing Node.js..."
+    echo "📦 Installing Node.js 20.x..."
     if [ "$OS" = "ubuntu" ] || [ "$OS" = "debian" ]; then
-        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-        sudo apt-get install -y nodejs
+        # Install curl if needed
+        if ! command -v curl &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y curl
+        fi
+        # Download and run NodeSource setup script
+        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - || {
+            echo "❌ Failed to add NodeSource repository"
+            echo "   Trying alternative installation method..."
+            sudo apt-get update && sudo apt-get install -y nodejs npm
+        }
+        sudo apt-get update && sudo apt-get install -y nodejs
     elif [ "$OS" = "centos" ] || [ "$OS" = "rhel" ] || [ "$OS" = "fedora" ]; then
         curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
         sudo yum install -y nodejs
@@ -38,19 +45,23 @@ if ! command -v node &> /dev/null; then
     fi
 fi
 
+# Verify Node.js installation
+if ! command -v node &> /dev/null; then
+    echo "❌ Node.js installation failed. Please install manually:"
+    echo "   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -"
+    echo "   sudo apt-get install -y nodejs"
+    exit 1
+fi
+
 # Install Python 3 if not present
 if ! command -v python3 &> /dev/null; then
     echo "📦 Installing Python 3..."
     if [ "$OS" = "ubuntu" ] || [ "$OS" = "debian" ]; then
-        sudo apt-get update
-        sudo apt-get install -y python3 python3-pip python3-venv
+        sudo apt-get update && sudo apt-get install -y python3 python3-pip python3-venv
     elif [ "$OS" = "centos" ] || [ "$OS" = "rhel" ] || [ "$OS" = "fedora" ]; then
         sudo yum install -y python3 python3-pip
     elif [ "$OS" = "amzn" ]; then
         sudo yum install -y python3 python3-pip
-    else
-        echo "❌ Unsupported OS: $OS. Please install Python 3 manually"
-        exit 1
     fi
 fi
 
@@ -58,8 +69,7 @@ fi
 if ! command -v git &> /dev/null; then
     echo "📦 Installing Git..."
     if [ "$OS" = "ubuntu" ] || [ "$OS" = "debian" ]; then
-        sudo apt-get update
-        sudo apt-get install -y git
+        sudo apt-get update && sudo apt-get install -y git
     elif [ "$OS" = "centos" ] || [ "$OS" = "rhel" ] || [ "$OS" = "fedora" ]; then
         sudo yum install -y git
     elif [ "$OS" = "amzn" ]; then
