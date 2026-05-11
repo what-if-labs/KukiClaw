@@ -85,7 +85,16 @@ The wizard will:
 ### 4. Start KūkiClaw
 
 ```bash
+# If openclaw is not found, source your bashrc first:
+source ~/.bashrc
+
+# Then start:
 openclaw start
+```
+
+**Note:** If `openclaw` is not found, use the full path:
+```bash
+~/.npm-global/bin/openclaw start
 ```
 
 ---
@@ -237,6 +246,22 @@ chmod 600 ~/.openclaw/openclaw.json
 ---
 
 ## Troubleshooting
+
+### "openclaw: command not found"
+
+This happens when npm installs to `~/.npm-global/bin` but your shell doesn't have it in PATH yet.
+
+**Fix:**
+```bash
+# Option 1: Source your bashrc
+source ~/.bashrc
+
+# Option 2: Use full path
+~/.npm-global/bin/openclaw start
+
+# Option 3: Add to PATH manually
+export PATH="$HOME/.npm-global/bin:$PATH"
+```
 
 ### Setup Wizard Fails
 
