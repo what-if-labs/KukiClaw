@@ -28,8 +28,7 @@ if ! command -v node &> /dev/null; then
         fi
         # Download and run NodeSource setup script
         curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - || {
-            echo "❌ Failed to add NodeSource repository"
-            echo "   Trying alternative installation method..."
+            echo "⚠️  NodeSource setup failed, trying alternative..."
             sudo apt-get update && sudo apt-get install -y nodejs npm
         }
         sudo apt-get update && sudo apt-get install -y nodejs
@@ -90,19 +89,20 @@ echo ""
 echo "📦 Installing OpenClaw v2026.4.22..."
 npm install -g openclaw@2026.4.22
 
-# Clone KukiClaw
-echo "📦 Cloning KukiClaw..."
+# Download setup wizard directly
+echo "📦 Downloading setup wizard..."
 cd /tmp
 rm -rf kukiclaw-setup
-git clone https://github.com/what-if-labs/KukiClaw.git kukiclaw-setup
-cd kukiclaw-setup
+mkdir -p kukiclaw-setup/setup
+curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py > kukiclaw-setup/setup/setup_wizard.py
 
 # Run setup wizard
 echo ""
 echo "🤖 Starting setup wizard..."
-cd setup
+cd kukiclaw-setup/setup
 python3 setup_wizard.py
 
 echo ""
 echo "✅ KūkiClaw installed successfully!"
-echo "   Start with: cd /tmp/kukiclaw-setup && openclaw start"
+echo "   Your OpenClaw config is at: ~/.openclaw/openclaw.json"
+echo "   Start with: openclaw start"
