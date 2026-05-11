@@ -245,6 +245,106 @@ chmod 600 ~/.openclaw/openclaw.json
 
 ---
 
+## Telegram Configuration
+
+### Option 1: During Setup (Recommended)
+
+The setup wizard will ask if you want to configure Telegram. Just say `y` and follow the prompts.
+
+### Option 2: Manual Configuration
+
+#### Step 1: Create a Telegram Bot
+
+1. Open Telegram and chat with **@BotFather**
+2. Run `/newbot`
+3. Follow the prompts to choose a name and username
+4. **Save the bot token** (looks like `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`)
+
+#### Step 2: Configure in openclaw.json
+
+Add the Telegram channel configuration:
+
+```json
+{
+  "meta": {
+    "lastTouchedVersion": "2026.4.22"
+  },
+  "mcp": {
+    "servers": {
+      "kukios-mcp": {
+        "url": "https://dashbeta.what-if.sg",
+        "headers": {
+          "Authorization": "Bearer your-jwt-token-here"
+        }
+      }
+    }
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+      "dmPolicy": "pairing",
+      "groups": {
+        "*": {
+          "requireMention": true
+        }
+      }
+    }
+  }
+}
+```
+
+#### Step 3: DM Policy Options
+
+| Policy | Description | Recommended For |
+|--------|-------------|-----------------|
+| `pairing` (default) | Approve each user manually | Personal use |
+| `allowlist` | Only specific user IDs can DM | Controlled access |
+| `open` | Anyone can DM | Public bots (not recommended) |
+| `disabled` | No DMs allowed | Group-only bots |
+
+#### Step 4: Find Your Telegram User ID
+
+**Method 1: Via OpenClaw logs (recommended)**
+```bash
+openclaw start
+# Then DM your bot
+openclaw logs --follow
+# Look for: from.id
+```
+
+**Method 2: Via Telegram API**
+```bash
+curl "https://api.telegram.org/bot<bot_token>/getUpdates"
+```
+
+**Method 3: Via Telegram bot**
+- Chat with `@userinfobot` or `@getidsbot`
+
+#### Step 5: Start OpenClaw
+
+```bash
+openclaw start
+```
+
+#### Step 6: Approve Your DM (if using pairing)
+
+```bash
+# List pending pairings
+openclaw pairing list telegram
+
+# Approve your pairing code
+openclaw pairing approve telegram <CODE>
+```
+
+#### Step 7: Add Bot to a Group (Optional)
+
+1. Add the bot to your Telegram group
+2. Make the bot an **admin** (to receive all messages)
+3. Or disable privacy mode via `/setprivacy` in BotFather
+
+---
+
 ## Troubleshooting
 
 ### "openclaw: command not found"
