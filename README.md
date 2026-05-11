@@ -13,10 +13,22 @@ curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/install.
 ```
 
 That's it! The installer will:
-1. Install OpenClaw
-2. Clone KūkiClaw
-3. Run the setup wizard
-4. Start your IoT companion agent
+1. Install Node.js, Python 3, and Git (if missing)
+2. Install OpenClaw
+3. Download and run the setup wizard
+4. Configure your IoT companion agent
+
+---
+
+## When to Clone the Repo
+
+You only need to clone the repo if you want to:
+- **Modify the setup wizard** - Customize the installation process
+- **Contribute to KukiClaw** - Submit PRs or report issues
+- **View documentation offline** - Read README.md locally
+- **Use local OpenClaw** - Run OpenClaw from source instead of npm
+
+For most users, the one-liner is all you need!
 
 ---
 
@@ -40,23 +52,24 @@ After setup, you'll have:
 
 If you prefer to install manually:
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/what-if-labs/KukiClaw.git
-cd kukiclaw
-```
-
-### 2. Install OpenClaw
+### 1. Install OpenClaw
 
 ```bash
 npm install -g openclaw@2026.4.22
 ```
 
+### 2. Download Setup Wizard
+
+```bash
+cd /tmp
+mkdir -p kukiclaw-setup/setup
+curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py > kukiclaw-setup/setup/setup_wizard.py
+cd kukiclaw-setup/setup
+```
+
 ### 3. Run Setup Wizard
 
 ```bash
-cd setup
 python3 setup_wizard.py
 ```
 
@@ -85,7 +98,7 @@ User → OpenClaw (MCP Client) → KūkiOS MCP Server (cloud-hosted) → IoT Pla
 
 ### First Install Flow
 
-1. **Clone & Install** - Get KūkiClaw and OpenClaw
+1. **One-Liner** - Run the installer or install OpenClaw manually
 2. **Run Wizard** - Answer a few questions about your KūkiOS instance
 3. **Auto-Configure** - MCP client is fixed to your instance
 4. **Start Chatting** - Your IoT companion agent is ready!
@@ -271,9 +284,6 @@ openclaw logs
 ```bash
 # Remove OpenClaw
 npm uninstall -g openclaw
-
-# Remove KūkiClaw
-rm -rf /path/to/kukiclaw
 
 # Remove configuration
 rm -rf ~/.openclaw
