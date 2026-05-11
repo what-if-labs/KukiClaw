@@ -149,45 +149,66 @@ openclaw configure
 
 # Apply KūkiOS MCP configuration
 echo ""
-echo "🔌 Applying KūkiOS MCP configuration..."
-python3 -c "
-import json, os
+echo "🔌 Configuring KūkiOS MCP..."
+echo "You'll need your KūkiOS credentials (email/password)"
+echo ""
+
+# Get KūkiOS credentials from terminal (not stdin which may be piped)
+exec < /dev/tty
+read -p "KūkiOS URL [https://dashbeta.what-if.sg]: " KUKIOS_URL
+KUKIOS_URL=${KUKIOS_URL:-https://dashbeta.what-if.sg}
+
+read -p "Email: " KUKIOS_EMAIL
+read -sp "Password: " KUKIOS_PASSWORD
+echo ""
+
+# Get JWT token
+echo ""
+echo "🔗 Authenticating with KūkiOS..."
+TOKEN_RESPONSE=$(curl -s -X POST "${KUKIOS_URL}/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"${KUKIOS_EMAIL}\",\"password\":\"${KUKIOS_PASSWORD}\"}")
+
+TOKEN=$(echo $TOKEN_RESPONSE | python3 -c "import sys,json; print(json.load(sys.stdin).get('tokens',{}).get('accessToken',''))" 2>/dev/null)
+
+if [ -z "$TOKEN" ]; then
+    echo "❌ Authentication failed. Please check your credentials."
+    echo "   You can configure KūkiOS MCP manually later:"
+    echo "   Edit: ~/.openclaw/openclaw.json"
+    echo "   Or run: ~/.npm-global/bin/openclaw configure"
+else
+    echo "✅ Authenticated successfully!"
+    
+    # Patch config with real token
+    python3 << PYEOF
+import json
 from pathlib import Path
 
 config_path = Path.home() / '.openclaw' / 'openclaw.json'
 
-# Load existing config
 config = {}
 if config_path.exists():
     with open(config_path) as f:
         config = json.load(f)
 
-# Add KūkiOS MCP server
 if 'mcp' not in config:
     config['mcp'] = {}
 if 'servers' not in config['mcp']:
     config['mcp']['servers'] = {}
 
 config['mcp']['servers']['kukios-mcp'] = {
-    'url': 'https://dashbeta.what-if.sg',
+    'url': '${KUKIOS_URL}',
     'headers': {
-        'Authorization': 'Bearer YOUR_TOKEN_HERE'
+        'Authorization': 'Bearer ${TOKEN}'
     }
 }
 
-# Save
 with open(config_path, 'w') as f:
     json.dump(config, f, indent=2)
 
-print(f'✅ KūkiOS MCP config added to {config_path}')
-"
-
-echo ""
-echo "⚠️  IMPORTANT: You need to add your KūkiOS token"
-echo "   Edit: ~/.openclaw/openclaw.json"
-echo "   Replace 'YOUR_TOKEN_HERE' with your actual JWT token"
-echo "   Or run the setup wizard to get a token automatically:"
-echo "   cd /tmp && curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py | python3"
+print(f'✅ KūkiOS MCP config saved to {config_path}')
+PYEOF
+fi
 
 echo ""
 echo "✅ KūkiClaw installed successfully!"
