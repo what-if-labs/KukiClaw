@@ -133,31 +133,25 @@ else
     exit 1
 fi
 
-# Download setup wizard directly
-echo "📦 Downloading setup wizard..."
-cd /tmp
-rm -rf kukiclaw-setup
-mkdir -p kukiclaw-setup/setup
-curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py > kukiclaw-setup/setup/setup_wizard.py
-
-# Run setup wizard
+# Configure OpenClaw
 echo ""
-echo "🤖 Starting setup wizard..."
-cd kukiclaw-setup/setup
-# Redirect stdin from /dev/tty so wizard can accept user input
-# (when run via curl | bash, stdin is consumed by the pipe)
-python3 setup_wizard.py < /dev/tty
+echo "⚙️  Configuring OpenClaw..."
+echo "This will guide you through:"
+echo "  • Model selection (AI provider)"
+echo "  • Workspace directory"
+echo "  • Telegram channel setup"
+echo "  • Gateway and daemon settings"
+echo ""
+read -p "Press Enter to start OpenClaw configuration..."
+
+# Run OpenClaw's interactive configuration
+openclaw configure
 
 echo ""
 echo "✅ KūkiClaw installed successfully!"
-echo "   Your OpenClaw config is at: ~/.openclaw/openclaw.json"
 echo ""
-echo "🚀 To start your IAQ companion agent:"
-echo "   1. Open a NEW terminal (or run: source ~/.bashrc)"
-echo "   2. Run: openclaw start"
+echo "🚀 Next steps:"
+echo "  1. Open a NEW terminal (or run: source ~/.bashrc)"
+echo "  2. Run: openclaw start"
 echo ""
-echo "   Or use full path immediately:"
-echo "   ~/.npm-global/bin/openclaw start"
-echo ""
-echo "📝 First time with OpenClaw? Run:"
-echo "   ~/.npm-global/bin/openclaw configure"
+echo "   Or use full path: ~/.npm-global/bin/openclaw start"
