@@ -22,25 +22,15 @@ def print_header():
 """)
 
 def get_input(prompt, default=None):
-    """Get user input with optional default - ensures terminal input"""
-    # Force terminal input when available
-    try:
-        tty = open('/dev/tty', 'r')
-        if default:
-            value = input(f"{prompt} [{default}]: ").strip()
-        else:
+    """Get user input with optional default"""
+    if default:
+        value = input(f"{prompt} [{default}]: ").strip()
+        return value if value else default
+    else:
+        while True:
             value = input(f"{prompt}: ").strip()
-        tty.close()
-    except:
-        # Fallback to stdin
-        if default:
-            value = input(f"{prompt} [{default}]: ").strip()
-        else:
-            value = input(f"{prompt}: ").strip()
-    
-    if default and not value:
-        return default
-    return value
+            if value:
+                return value
 
 def test_connection(url, email, password):
     """Test connection to KūkiOS and get JWT token"""
