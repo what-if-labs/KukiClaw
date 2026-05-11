@@ -153,13 +153,13 @@ echo "🔌 Configuring KūkiOS MCP..."
 echo "You'll need your KūkiOS credentials (email/password)"
 echo ""
 
-# Get KūkiOS credentials from terminal (not stdin which may be piped)
-exec < /dev/tty
-read -p "KūkiOS URL [https://dashbeta.what-if.sg]: " KUKIOS_URL
+# Read from /dev/tty since stdin may be piped from curl | bash
+read -p "KūkiOS URL [https://dashbeta.what-if.sg]: " -r KUKIOS_URL < /dev/tty
 KUKIOS_URL=${KUKIOS_URL:-https://dashbeta.what-if.sg}
 
-read -p "Email: " KUKIOS_EMAIL
-read -sp "Password: " KUKIOS_PASSWORD
+read -p "Email: " -r KUKIOS_EMAIL < /dev/tty
+
+read -sp "Password: " -r KUKIOS_PASSWORD < /dev/tty
 echo ""
 
 # Get JWT token
