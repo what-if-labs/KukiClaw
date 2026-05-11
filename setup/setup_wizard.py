@@ -22,15 +22,24 @@ def print_header():
 """)
 
 def get_input(prompt, default=None):
-    """Get user input with optional default"""
+    """Get user input with optional default - ensures terminal input"""
+    # Force terminal input
+    try:
+        tty = open('/dev/tty', 'r')
+    except:
+        tty = sys.stdin
+    
     if default:
-        value = input(f"{prompt} [{default}]: ").strip()
+        value = input(f"{prompt} [{default}]: ", tty).strip()
+        tty.close()
         return value if value else default
     else:
         while True:
-            value = input(f"{prompt}: ").strip()
+            value = input(f"{prompt}: ", tty).strip()
+            tty.close()
             if value:
                 return value
+            tty = open('/dev/tty', 'r')
 
 def test_connection(url, email, password):
     """Test connection to KūkiOS and get JWT token"""
@@ -48,9 +57,14 @@ def test_connection(url, email, password):
                 "user": data.get("user", {})
             }
         else:
+            try:
+                error_data = response.json()
+                error_msg = error_data.get("message", f"HTTP {response.status_code}")
+            except:
+                error_msg = f"HTTP {response.status_code}: {response.text[:100]}"
             return {
                 "success": False,
-                "error": f"Authentication failed: {response.status_code}"
+                "error": error_msg
             }
     except requests.exceptions.ConnectionError:
         return {"success": False, "error": "Cannot connect to server. Check URL."}
@@ -98,6 +112,11 @@ def main():
     if not result["success"]:
         print(f"❌ {result['error']}")
         print("\nPlease check your credentials and try again.")
+        print("\nTroubleshooting:")
+        print("  1. Verify your email and password are correct")
+        print(f"  2. Test manually: curl -X POST {url}/api/auth/login \\")
+        print('     -H "Content-Type: application/json" \\')
+        print('     -d \'{"email":"your-email","password":"your-password"}\'')
         sys.exit(1)
     
     token = result["token"]
@@ -131,8 +150,7 @@ Your KūkiClaw bot is now configured with:
 KūkiOS MCP is cloud-hosted - no local server required!
 
 To start your IAQ companion agent:
-  1. cd {Path(__file__).parent.parent}
-  2. openclaw start
+  1. openclaw start
 
 Example queries:
   • "What's the CO2 level in the meeting room?"

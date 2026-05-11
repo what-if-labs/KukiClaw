@@ -100,6 +100,7 @@ curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/se
 echo ""
 echo "🤖 Starting setup wizard..."
 cd kukiclaw-setup/setup
+# Ensure terminal input works even when piped
 python3 setup_wizard.py
 
 echo ""
