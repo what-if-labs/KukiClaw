@@ -13,7 +13,7 @@ curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/install.
 ```
 
 That's it! The installer will:
-1. Install Node.js, Python 3, and Git (if missing)
+1. Install Node.js 22.x, Python 3, and Git (if missing)
 2. Install OpenClaw
 3. Download and run the setup wizard
 4. Configure your IoT companion agent
