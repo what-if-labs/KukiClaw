@@ -18,38 +18,65 @@ fi
 
 echo "🖥️  Detected: $OS $OS_VERSION"
 
-# Install Node.js if not present
-if ! command -v node &> /dev/null; then
-    echo "📦 Installing Node.js 20.x..."
+# Install Node.js 22.x if not present or wrong version
+install_nodejs() {
+    echo "📦 Installing Node.js 22.x..."
     if [ "$OS" = "ubuntu" ] || [ "$OS" = "debian" ]; then
         # Install curl if needed
         if ! command -v curl &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y curl
         fi
-        # Download and run NodeSource setup script
-        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - || {
+        # Download and run NodeSource setup script for Node.js 22
+        curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - || {
             echo "⚠️  NodeSource setup failed, trying alternative..."
             sudo apt-get update && sudo apt-get install -y nodejs npm
         }
         sudo apt-get update && sudo apt-get install -y nodejs
     elif [ "$OS" = "centos" ] || [ "$OS" = "rhel" ] || [ "$OS" = "fedora" ]; then
-        curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+        curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
         sudo yum install -y nodejs
     elif [ "$OS" = "amzn" ]; then
-        curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+        curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
         sudo yum install -y nodejs
     else
-        echo "❌ Unsupported OS: $OS. Please install Node.js manually from https://nodejs.org/"
+        echo "❌ Unsupported OS: $OS. Please install Node.js 22+ manually from https://nodejs.org/"
         exit 1
     fi
+}
+
+if command -v node &> /dev/null; then
+    NODE_VERSION=$(node --version | sed 's/v//')
+    NODE_MAJOR=$(echo $NODE_VERSION | cut -d. -f1)
+    if [ "$NODE_MAJOR" -lt 22 ]; then
+        echo "⚠️  Node.js $NODE_VERSION found, but 22+ required"
+        install_nodejs
+    else
+        echo "✅ Node.js $NODE_VERSION already installed"
+    fi
+else
+    install_nodejs
 fi
 
 # Verify Node.js installation
 if ! command -v node &> /dev/null; then
     echo "❌ Node.js installation failed. Please install manually:"
-    echo "   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -"
+    echo "   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash -"
     echo "   sudo apt-get install -y nodejs"
     exit 1
+fi
+
+# Configure npm for global installs without sudo
+if [ -z "$NPM_CONFIG_PREFIX" ]; then
+    NPM_PREFIX="$HOME/.npm-global"
+    mkdir -p "$NPM_PREFIX"
+    npm config set prefix "$NPM_PREFIX"
+    
+    # Add to PATH if not already there
+    if [[ ":$PATH:" != *":$NPM_PREFIX/bin:"* ]]; then
+        export PATH="$NPM_PREFIX/bin:$PATH"
+        echo "" >> ~/.bashrc
+        echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
+    fi
 fi
 
 # Install Python 3 if not present
@@ -100,7 +127,6 @@ curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/se
 echo ""
 echo "🤖 Starting setup wizard..."
 cd kukiclaw-setup/setup
-# Ensure terminal input works even when piped
 python3 setup_wizard.py
 
 echo ""
