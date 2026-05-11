@@ -127,7 +127,9 @@ curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/se
 echo ""
 echo "🤖 Starting setup wizard..."
 cd kukiclaw-setup/setup
-python3 setup_wizard.py
+# Redirect stdin from /dev/tty so wizard can accept user input
+# (when run via curl | bash, stdin is consumed by the pipe)
+python3 setup_wizard.py < /dev/tty
 
 echo ""
 echo "✅ KūkiClaw installed successfully!"

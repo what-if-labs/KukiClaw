@@ -22,26 +22,15 @@ def print_header():
 """)
 
 def get_input(prompt, default=None):
-    """Get user input from terminal (works even when stdin is piped)"""
-    try:
-        # Open terminal directly for input
-        with open('/dev/tty', 'r') as tty:
-            if default:
-                sys.stdout.write(f"{prompt} [{default}]: ")
-            else:
-                sys.stdout.write(f"{prompt}: ")
-            sys.stdout.flush()
-            value = tty.readline().strip()
-    except:
-        # Fallback to stdin if /dev/tty not available
-        if default:
-            value = input(f"{prompt} [{default}]: ").strip()
-        else:
+    """Get user input from terminal"""
+    if default:
+        value = input(f"{prompt} [{default}]: ").strip()
+        return value if value else default
+    else:
+        while True:
             value = input(f"{prompt}: ").strip()
-    
-    if default and not value:
-        return default
-    return value
+            if value:
+                return value
 
 def test_connection(url, email, password):
     """Test connection to KūkiOS and get JWT token"""
