@@ -142,7 +142,8 @@ echo "  • Workspace directory"
 echo "  • Telegram channel setup"
 echo "  • Gateway and daemon settings"
 echo ""
-read -p "Press Enter to start OpenClaw configuration..."
+echo "Press Enter to start OpenClaw configuration..."
+read -r < /dev/tty
 
 # Run OpenClaw's interactive configuration
 openclaw configure
