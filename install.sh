@@ -147,6 +147,48 @@ read -p "Press Enter to start OpenClaw configuration..."
 # Run OpenClaw's interactive configuration
 openclaw configure
 
+# Apply KūkiOS MCP configuration
+echo ""
+echo "🔌 Applying KūkiOS MCP configuration..."
+python3 -c "
+import json, os
+from pathlib import Path
+
+config_path = Path.home() / '.openclaw' / 'openclaw.json'
+
+# Load existing config
+config = {}
+if config_path.exists():
+    with open(config_path) as f:
+        config = json.load(f)
+
+# Add KūkiOS MCP server
+if 'mcp' not in config:
+    config['mcp'] = {}
+if 'servers' not in config['mcp']:
+    config['mcp']['servers'] = {}
+
+config['mcp']['servers']['kukios-mcp'] = {
+    'url': 'https://dashbeta.what-if.sg',
+    'headers': {
+        'Authorization': 'Bearer YOUR_TOKEN_HERE'
+    }
+}
+
+# Save
+with open(config_path, 'w') as f:
+    json.dump(config, f, indent=2)
+
+print(f'✅ KūkiOS MCP config added to {config_path}')
+"
+
+echo ""
+echo "⚠️  IMPORTANT: You need to add your KūkiOS token"
+echo "   Edit: ~/.openclaw/openclaw.json"
+echo "   Replace 'YOUR_TOKEN_HERE' with your actual JWT token"
+echo "   Or run the setup wizard to get a token automatically:"
+echo "   cd /tmp && curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py | python3"
+
 echo ""
 echo "✅ KūkiClaw installed successfully!"
 echo ""
