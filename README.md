@@ -15,8 +15,8 @@ curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/install.
 That's it! The installer will:
 1. Install Node.js 22.x, Python 3, and Git (if missing)
 2. Install OpenClaw
-3. Download and run the setup wizard
-4. Configure your IoT companion agent
+3. Run `openclaw configure` (model, workspace, Telegram, gateway)
+4. Configure KūkiOS MCP (credentials → auto-auth → token)
 
 ---
 
@@ -58,25 +58,25 @@ If you prefer to install manually:
 npm install -g openclaw@2026.4.22
 ```
 
-### 2. Download Setup Wizard
+### 2. Run OpenClaw Configure
 
 ```bash
-cd /tmp
-mkdir -p kukiclaw-setup/setup
-curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py > kukiclaw-setup/setup/setup_wizard.py
-cd kukiclaw-setup/setup
+openclaw configure
 ```
 
-### 3. Run Setup Wizard
+This interactive wizard will guide you through:
+- Model selection (AI provider)
+- Workspace directory
+- Telegram channel setup
+- Gateway and daemon settings
+
+### 3. Configure KūkiOS MCP
+
+After OpenClaw is configured, add the KūkiOS MCP server:
 
 ```bash
-python3 setup_wizard.py
+curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py | python3
 ```
-
-The wizard will:
-1. Ask for your KūkiOS MCP Server URL (default: `https://dashbeta.what-if.sg`)
-2. Ask for your email and password
-3. Test the connection
 4. Configure OpenClaw with MCP client
 5. Start your IoT companion agent
 
