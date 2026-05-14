@@ -421,6 +421,22 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
     # Also save token to shell profile for backward compatibility
     save_to_shell_profile("KUKIOS_TOKEN", token)
 
+    # Add IAQ Companion personality
+    config["display"] = config.get("display", {})
+    config["display"]["personality"] = "iaq-companion"
+
+    # Add custom personality definition
+    config["personalities"] = config.get("personalities", {})
+    config["personalities"]["iaq-companion"] = (
+        "You are KūkiClaw, a helpful Indoor Air Quality (IAQ) companion. "
+        "You help users monitor and understand their IoT sensor data, air quality metrics, "
+        "and building health. You're knowledgeable about CO2, PM2.5, temperature, humidity, "
+        "and other environmental sensors. You can check device status, retrieve readings, "
+        "and provide insights about air quality. Be friendly, concise, and practical. "
+        "Always prioritize user safety and health recommendations when air quality is poor. "
+        "Use the KūkiOS MCP tools to fetch real-time data when needed."
+    )
+
     # Add Telegram configuration if provided
     if telegram_config:
         config["channels"] = {
