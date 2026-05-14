@@ -19,13 +19,81 @@ You can chat with it via Telegram or your terminal.
 
 Before starting, gather these items:
 
-- ✅ A Linux computer (Ubuntu, Debian, or similar)
+- ✅ A Linux computer (Ubuntu, Debian, or similar) **OR** a Windows PC with WSL
 - ✅ Internet connection
 - ✅ Your KūkiOS account (email and password)
 - ✅ An AI provider API key (we'll guide you through this)
 - ✅ (Optional) A Telegram Bot Token if you want to chat via Telegram
 
 **Time needed:** About 10-15 minutes
+
+---
+
+## Installing on Windows
+
+KūkiClaw runs on Linux. For Windows users, you'll use **WSL (Windows Subsystem for Linux)** - a built-in Windows feature that lets you run Linux inside Windows.
+
+### Step 1: Install WSL
+
+1. **Open PowerShell as Administrator**
+   - Click the Start menu
+   - Type "PowerShell"
+   - Right-click on "Windows PowerShell"
+   - Select "Run as administrator"
+
+2. **Install WSL**
+   Type this command and press Enter:
+   ```
+   wsl --install
+   ```
+
+3. **Restart your computer**
+   - After installation completes, restart your PC
+   - On restart, Ubuntu will finish setting up
+
+4. **Create your Linux username and password**
+   - A terminal window will open automatically
+   - Choose a username (any name you like)
+   - Choose a password (it won't show as you type - this is normal)
+   - Type the password again to confirm
+
+### Step 2: Open Your Linux Terminal
+
+After setup, you can open Linux by:
+- Clicking Start and typing "Ubuntu"
+- Or typing `wsl` in PowerShell or Command Prompt
+
+You'll see a terminal window with a `$` prompt. This is your Linux environment.
+
+### Step 3: Run the KūkiClaw Installer
+
+In your Linux terminal, copy and paste this line, then press Enter:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/install.sh | bash
+```
+
+**The installation will now proceed just like on Linux.** Follow the on-screen prompts:
+1. Enter your KūkiOS credentials
+2. Choose your AI provider
+3. Set up Telegram (optional)
+4. Start KūkiClaw
+
+### Windows Troubleshooting
+
+**If WSL doesn't install:**
+- Make sure you're running PowerShell as Administrator
+- Your Windows version must be Windows 10 (version 2004 or later) or Windows 11
+- You may need to enable virtualization in your BIOS
+
+**If you get "command not found":**
+```bash
+source ~/.bashrc
+```
+
+**To open your Linux terminal anytime:**
+- Start menu → Ubuntu
+- Or type `wsl` in Windows search
 
 ---
 
