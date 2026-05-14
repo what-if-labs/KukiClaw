@@ -163,7 +163,7 @@ start_now=${start_now:-y}
 
 if [ "$start_now" = "y" ] || [ "$start_now" = "Y" ]; then
     echo ""
-    echo "🚀 Starting KūkiClaw..."
+    echo "🚀 Starting KūkiClaw Gateway..."
     echo "   (Press Ctrl+C to stop)"
     echo ""
     cd ~
@@ -175,19 +175,19 @@ if [ "$start_now" = "y" ] || [ "$start_now" = "Y" ]; then
         source ~/.zshrc 2>/dev/null || true
     fi
     if command -v openclaw &> /dev/null; then
-        openclaw start
+        openclaw gateway start
     else
-        ~/.npm-global/bin/openclaw start
+        ~/.npm-global/bin/openclaw gateway start
     fi
 else
     echo ""
     echo "🚀 To start your IAQ companion agent later:"
     echo "   1. cd ~  (go to home directory)"
     echo "   2. source ~/.bashrc  (or open a NEW terminal)"
-    echo "   3. openclaw start"
+    echo "   3. openclaw gateway start"
     echo ""
     echo "   Or use full path:"
-    echo "   cd ~ && ~/.npm-global/bin/openclaw start"
+    echo "   cd ~ && ~/.npm-global/bin/openclaw gateway start"
 fi
 
 echo ""
