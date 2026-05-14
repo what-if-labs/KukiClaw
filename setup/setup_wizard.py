@@ -246,16 +246,17 @@ def get_api_key(provider):
             return f"${{{env_var}}}"
 
     print(f"\n🔑 Enter your {provider['name']} API key:")
-    print(f"   (This will be stored in ~/.bashrc as ${{{env_var}}})")
+    print(f"   (This will be stored in ~/.openclaw/openclaw.json)")
     api_key = get_password(f"{env_var}")
 
     # Set in current environment for this session
     os.environ[env_var] = api_key
 
-    # Persist to shell profile
+    # Persist to shell profile for future sessions
     save_to_shell_profile(env_var, api_key)
 
-    return f"${{{env_var}}}"
+    # Return the actual key (not env var reference) for the config
+    return api_key
 
 
 def save_to_shell_profile(env_var, value):
