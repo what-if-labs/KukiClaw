@@ -235,7 +235,7 @@ def select_model(provider_id):
 
 
 def get_api_key(provider):
-    """Get API key from user or environment"""
+    """Get API key from user or environment, and persist to shell profile"""
     env_var = provider['env_var']
     existing_key = os.environ.get(env_var)
 
@@ -246,13 +246,70 @@ def get_api_key(provider):
             return f"${{{env_var}}}"
 
     print(f"\n🔑 Enter your {provider['name']} API key:")
-    print(f"   (This will be stored in the config as ${{{env_var}}})")
+    print(f"   (This will be stored in ~/.bashrc as ${{{env_var}}})")
     api_key = get_password(f"{env_var}")
 
     # Set in current environment for this session
     os.environ[env_var] = api_key
 
+    # Persist to shell profile
+    save_to_shell_profile(env_var, api_key)
+
     return f"${{{env_var}}}"
+
+
+def save_to_shell_profile(env_var, value):
+    """Save environment variable to shell profile"""
+    # Determine shell profile file
+    home = Path.home()
+    shell = os.environ.get('SHELL', '/bin/bash')
+
+    if 'zsh' in shell:
+        profile_file = home / ".zshrc"
+    else:
+        # Default to bash
+        profile_file = home / ".bashrc"
+
+    # Check if already in profile
+    export_line = f'export {env_var}="{value}"'
+
+    try:
+        if profile_file.exists():
+            with open(profile_file, 'r') as f:
+                content = f.read()
+                if env_var in content:
+                    # Update existing line
+                    lines = content.split('\n')
+                    new_lines = []
+                    found = False
+                    for line in lines:
+                        if line.startswith(f'export {env_var}='):
+                            new_lines.append(export_line)
+                            found = True
+                        else:
+                            new_lines.append(line)
+                    if found:
+                        with open(profile_file, 'w') as f:
+                            f.write('\n'.join(new_lines))
+                        print(f"   ✅ Updated {env_var} in {profile_file}")
+                    else:
+                        # Append if not found as export line
+                        with open(profile_file, 'a') as f:
+                            f.write(f"\n# KukiClaw AI Provider\n{export_line}\n")
+                        print(f"   ✅ Added {env_var} to {profile_file}")
+                else:
+                    # Append to file
+                    with open(profile_file, 'a') as f:
+                        f.write(f"\n# KukiClaw AI Provider\n{export_line}\n")
+                    print(f"   ✅ Added {env_var} to {profile_file}")
+        else:
+            # Create new profile file
+            with open(profile_file, 'w') as f:
+                f.write(f"# KukiClaw AI Provider\n{export_line}\n")
+            print(f"   ✅ Created {profile_file} with {env_var}")
+    except Exception as e:
+        print(f"   ⚠️  Could not save to {profile_file}: {e}")
+        print(f"   Please manually add: export {env_var}='your-api-key'")
 
 
 def create_provider_config(provider_id, model_id, provider, api_key_ref):

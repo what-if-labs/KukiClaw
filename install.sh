@@ -167,6 +167,13 @@ if [ "$start_now" = "y" ] || [ "$start_now" = "Y" ]; then
     echo "   (Press Ctrl+C to stop)"
     echo ""
     cd ~
+    # Source shell profile to get API keys
+    if [ -f ~/.bashrc ]; then
+        source ~/.bashrc 2>/dev/null || true
+    fi
+    if [ -f ~/.zshrc ]; then
+        source ~/.zshrc 2>/dev/null || true
+    fi
     if command -v openclaw &> /dev/null; then
         openclaw start
     else
