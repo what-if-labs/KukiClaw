@@ -406,7 +406,7 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
         "lastTouchedVersion": "2026.4.22"
     }
 
-    # Add MCP configuration
+    # Add MCP configuration with actual token (not env var reference)
     config["mcp"] = {
         "servers": {
             "kukios-mcp": {
@@ -417,6 +417,9 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
             }
         }
     }
+
+    # Also save token to shell profile for backward compatibility
+    save_to_shell_profile("KUKIOS_TOKEN", token)
 
     # Add Telegram configuration if provided
     if telegram_config:
