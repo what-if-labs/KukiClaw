@@ -449,7 +449,19 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
 def test_mcp_connection(url, token):
     """Test MCP connection with the provided token"""
     try:
-        # Try common MCP endpoints
+        # Try root domain first (most common for KukiOS)
+        try:
+            response = requests.get(
+                url,
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=5
+            )
+            if response.status_code in [200, 401, 403]:
+                return {"success": True, "endpoint": "/ (root)", "status": response.status_code}
+        except:
+            pass
+
+        # Try common MCP endpoints as fallback
         endpoints = [
             "/mcp",
             "/api/mcp",
