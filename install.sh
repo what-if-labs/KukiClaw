@@ -144,17 +144,45 @@ echo "🤖 Starting setup wizard..."
 cd /tmp/kukiclaw-setup/setup
 python3 setup_wizard.py < /dev/tty
 
+# Check if setup was successful
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Setup wizard failed. Please check the errors above."
+    exit 1
+fi
+
 echo ""
 echo "✅ KūkiClaw installed successfully!"
 echo "   Your OpenClaw config is at: ~/.openclaw/openclaw.json"
 echo ""
-echo "🚀 To start your IAQ companion agent:"
-echo "   1. cd ~  (go to home directory)"
-echo "   2. source ~/.bashrc  (or open a NEW terminal)"
-echo "   3. openclaw start"
-echo ""
-echo "   Or use full path:"
-echo "   cd ~ && ~/.npm-global/bin/openclaw start"
+
+# Ask if user wants to start OpenClaw now
+echo "🚀 Would you like to start KūkiClaw now?"
+read -p "   Start OpenClaw? (y/n) [y]: " start_now
+start_now=${start_now:-y}
+
+if [ "$start_now" = "y" ] || [ "$start_now" = "Y" ]; then
+    echo ""
+    echo "🚀 Starting KūkiClaw..."
+    echo "   (Press Ctrl+C to stop)"
+    echo ""
+    cd ~
+    if command -v openclaw &> /dev/null; then
+        openclaw start
+    else
+        ~/.npm-global/bin/openclaw start
+    fi
+else
+    echo ""
+    echo "🚀 To start your IAQ companion agent later:"
+    echo "   1. cd ~  (go to home directory)"
+    echo "   2. source ~/.bashrc  (or open a NEW terminal)"
+    echo "   3. openclaw start"
+    echo ""
+    echo "   Or use full path:"
+    echo "   cd ~ && ~/.npm-global/bin/openclaw start"
+fi
+
 echo ""
 echo "⚠️  IMPORTANT: Always run 'openclaw' from your home directory (~)"
 echo "   Running from /tmp or deleted directories causes 'uv_cwd' errors"
