@@ -446,6 +446,39 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
     return config
 
 
+def test_mcp_connection(url, token):
+    """Test MCP connection with the provided token"""
+    try:
+        # Try common MCP endpoints
+        endpoints = [
+            "/mcp",
+            "/api/mcp",
+            "/mcp/v1",
+            "/.well-known/mcp"
+        ]
+
+        for endpoint in endpoints:
+            try:
+                response = requests.get(
+                    f"{url}{endpoint}",
+                    headers={"Authorization": f"Bearer {token}"},
+                    timeout=5
+                )
+                if response.status_code in [200, 401]:  # 401 means endpoint exists but needs auth
+                    return {"success": True, "endpoint": endpoint, "status": response.status_code}
+            except:
+                continue
+
+        return {"success": False, "error": "No MCP endpoint found"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def refresh_token(url, email, password):
+    """Refresh/get a new JWT token"""
+    return test_connection(url, email, password)
+
+
 def main():
     print_header()
 
@@ -477,6 +510,15 @@ def main():
     token = result["token"]
     user = result.get("user", {})
     print(f"✅ Connected! Welcome, {user.get('firstName', 'User')}")
+
+    # Step 3b: Test MCP Connection
+    print("\n🔗 Testing MCP Connection...")
+    mcp_test = test_mcp_connection(url, token)
+    if mcp_test["success"]:
+        print(f"✅ MCP endpoint found: {mcp_test['endpoint']}")
+    else:
+        print(f"⚠️  MCP test warning: {mcp_test['error']}")
+        print("   The token works for auth, but MCP endpoint may need verification.")
 
     # Load existing config
     existing_config = load_existing_config()
