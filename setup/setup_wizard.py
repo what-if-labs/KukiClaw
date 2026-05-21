@@ -238,7 +238,7 @@ def select_model(provider_id):
 
 
 def get_api_key(provider):
-    """Get API key from user or environment, and persist to shell profile"""
+    """Get API key from user or environment, and persist directly in config."""
     env_var = provider['env_var']
     existing_key = os.environ.get(env_var)
 
@@ -246,19 +246,16 @@ def get_api_key(provider):
         print(f"\n✅ Found {env_var} in environment")
         use_env = get_input(f"Use existing {env_var}? (y/n)", "y")
         if use_env.lower() == 'y':
-            return f"${{{env_var}}}"
+            # Store the actual key value directly in the config file,
+            # not an env var reference like ${OPENAI_API_KEY}.
+            print(f"   The key will be stored directly in ~/.openclaw/openclaw.json")
+            return existing_key
 
     print(f"\n🔑 Enter your {provider['name']} API key:")
     print(f"   (This will be stored in ~/.openclaw/openclaw.json)")
     api_key = get_password(f"{env_var}")
 
-    # Set in current environment for this session
-    os.environ[env_var] = api_key
-
-    # Persist to shell profile for future sessions
-    save_to_shell_profile(env_var, api_key)
-
-    # Return the actual key (not env var reference) for the config
+    # Return the actual key for direct storage in config
     return api_key
 
 
