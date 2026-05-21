@@ -20,6 +20,129 @@ That's it! The installer will:
 
 ---
 
+## 🪟 Windows Installation
+
+### Option A: WSL (Recommended)
+
+The simplest way to run KūkiClaw on Windows is via **WSL2** (Windows Subsystem for Linux). This gives you a native Linux environment where the standard one-liner works as-is.
+
+**1. Install WSL2**
+
+Open PowerShell as Administrator and run:
+
+```powershell
+wsl --install
+```
+
+Restart your computer when prompted. After reboot, WSL will finish installing and open an Ubuntu terminal. Set your username and password.
+
+**2. Install KūkiClaw inside WSL**
+
+In the Ubuntu terminal, run the standard one-liner:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/install.sh | bash
+```
+
+**3. Start KūkiClaw**
+
+```bash
+cd ~
+openclaw gateway start
+```
+
+> **Note**: Always run `openclaw` from your WSL home directory (`~`). Running from `/mnt/c/` or other Windows-mounted paths can cause `uv_cwd` errors.
+
+### Option B: Native Windows (PowerShell)
+
+If you prefer to run KūkiClaw natively on Windows without WSL:
+
+**1. Install Prerequisites**
+
+| Tool | Installer | Notes |
+|------|-----------|-------|
+| Node.js 22+ | [nodejs.org](https://nodejs.org/) | Check "Add to PATH" during install |
+| Python 3.10+ | [python.org](https://www.python.org/downloads/) | Check "Add Python to PATH" during install |
+| Git | [git-scm.com](https://git-scm.com/download/win) | Default options are fine |
+
+Verify installations in PowerShell:
+
+```powershell
+node --version    # v22.x or higher
+python --version  # Python 3.10+
+git --version     # git 2.x
+```
+
+**2. Install OpenClaw**
+
+```powershell
+npm install -g openclaw@2026.4.22
+```
+
+> **Note**: If you get a permissions error, run PowerShell as Administrator, or configure npm for user-level installs:
+> ```powershell
+> mkdir -Force "$env:USERPROFILE\.npm-global"
+> npm config set prefix "$env:USERPROFILE\.npm-global"
+> $env:Path = "$env:USERPROFILE\.npm-global;$env:Path"
+> [Environment]::SetEnvironmentVariable("Path", "$env:USERPROFILE\.npm-global;$env:Path", "User")
+> ```
+
+**3. Run Setup Wizard**
+
+```powershell
+cd $env:USERPROFILE
+curl.exe -fsSL https://raw.githubusercontent.com/what-if-labs/KukiClaw/main/setup/setup_wizard.py -o setup_wizard.py
+python setup_wizard.py
+```
+
+The wizard will guide you through:
+- KūkiOS MCP server URL and credentials
+- AI model provider selection
+- Model selection from provider's available models
+- API key configuration
+- Telegram setup (optional)
+
+**4. Start KūkiClaw**
+
+```powershell
+openclaw gateway start
+```
+
+If `openclaw` is not recognized, use the full path:
+
+```powershell
+& "$env:USERPROFILE\.npm-global\openclaw" gateway start
+```
+
+Or if npm installed globally to the default location:
+
+```powershell
+& "$env:APPDATA\npm\openclaw" gateway start
+```
+
+### Windows-Specific Notes
+
+- **Config location**: On Windows, configuration is stored in `%USERPROFILE%\.openclaw\openclaw.json` (equivalent to `~/.openclaw/openclaw.json` on Linux).
+- **Always start from your home directory**: Run `cd $env:USERPROFILE` before starting OpenClaw to avoid `uv_cwd` errors.
+- **Environment variables**: The setup wizard stores API keys directly in `openclaw.json`. If you need to set them manually in PowerShell:
+  ```powershell
+  $env:QWEN_API_KEY = "your-key-here"
+  [Environment]::SetEnvironmentVariable("QWEN_API_KEY", "your-key-here", "User")
+  ```
+- **Windows Defender / Antivirus**: The `openclaw gateway start` command spawns a Node.js process. Some antivirus software may flag this. Add an exclusion for `%APPDATA%\npm\node_modules\openclaw` if needed.
+
+### Windows Uninstallation
+
+```powershell
+# Remove OpenClaw
+npm uninstall -g openclaw
+
+# Remove configuration
+Remove-Item -Recurse -Force "$env:USERPROFILE\.openclaw"
+```
+
+---
+
 ## When to Clone the Repo
 
 You only need to clone the repo if you want to:
