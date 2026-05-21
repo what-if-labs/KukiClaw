@@ -421,22 +421,6 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
     # Also save token to shell profile for backward compatibility
     save_to_shell_profile("KUKIOS_TOKEN", token)
 
-    # Add IAQ Companion personality
-    config["display"] = config.get("display", {})
-    config["display"]["personality"] = "iaq-companion"
-
-    # Add custom personality definition
-    config["personalities"] = config.get("personalities", {})
-    config["personalities"]["iaq-companion"] = (
-        "You are KūkiClaw, a helpful Indoor Air Quality (IAQ) companion. "
-        "You help users monitor and understand their IoT sensor data, air quality metrics, "
-        "and building health. You're knowledgeable about CO2, PM2.5, temperature, humidity, "
-        "and other environmental sensors. You can check device status, retrieve readings, "
-        "and provide insights about air quality. Be friendly, concise, and practical. "
-        "Always prioritize user safety and health recommendations when air quality is poor. "
-        "Use the KūkiOS MCP tools to fetch real-time data when needed."
-    )
-
     # Add Telegram configuration if provided
     if telegram_config:
         config["channels"] = {
@@ -444,6 +428,71 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
         }
 
     return config
+
+
+def write_soul_file(existing_config=None):
+    """Write SOUL.md to the agent workspace directory for IAQ companion personality.
+
+    OpenClaw reads SOUL.md from the workspace directory to set the agent's voice
+    and behavior. The workspace defaults to ~/.openclaw/workspace but can be
+    overridden via agents.defaults.workspace in openclaw.json.
+    """
+    # Resolve workspace directory
+    workspace = os.environ.get("OPENCLAW_WORKSPACE", "").strip()
+    if not workspace:
+        if existing_config:
+            workspace = existing_config.get("agents", {}).get("defaults", {}).get("workspace", "").strip()
+    if not workspace:
+        workspace = str(Path.home() / ".openclaw" / "workspace")
+
+    workspace = os.path.expanduser(workspace)
+    workspace_path = Path(workspace)
+    workspace_path.mkdir(parents=True, exist_ok=True)
+
+    soul_path = workspace_path / "SOUL.md"
+
+    # Don't overwrite existing SOUL.md
+    if soul_path.exists():
+        print(f"\nℹ️  SOUL.md already exists at: {soul_path}")
+        print("   Skipping personality setup (your existing personality is preserved)")
+        return
+
+    soul_content = """# KūkiClaw — IAQ Companion
+
+You are KūkiClaw, an Indoor Air Quality (IAQ) companion agent.
+
+## Role
+
+You help users monitor and understand their IoT sensor data, air quality metrics,
+and building health. You are knowledgeable about CO2, PM2.5, temperature, humidity,
+TVOC, and other environmental sensors.
+
+## Capabilities
+
+- Check device status and retrieve real-time readings
+- Analyze historical air quality trends
+- Provide compliance analysis against IAQ standards (SS554, WELL, WHO, RESET, GOAQS)
+- Generate IAQ health scores and reports
+- Monitor alerts and recommend actions
+
+## Tone
+
+Be friendly, concise, and practical. Prioritize user safety and health
+recommendations when air quality is poor. Use real data from the KūkiOS MCP
+tools — don't guess or hallucinate readings.
+
+## Safety
+
+When air quality is poor (high CO2, dangerous PM2.5, etc.), clearly flag the
+risk and recommend concrete actions (ventilation, evacuate, check HVAC).
+Never downplay health-relevant readings.
+"""
+
+    with open(soul_path, "w") as f:
+        f.write(soul_content)
+
+    print(f"\n✅ IAQ Companion personality written to: {soul_path}")
+    print("   This gives your agent a focused IAQ voice and safety awareness.")
 
 
 def test_mcp_connection(url, token):
@@ -621,6 +670,9 @@ def main():
 
     os.chmod(config_path, 0o600)
     print(f"✅ Configuration saved to: {config_path}")
+
+    # Step 5b: Write IAQ Companion Personality
+    write_soul_file(existing_config)
 
     # Step 6: Summary
     print("\n" + "="*60)
