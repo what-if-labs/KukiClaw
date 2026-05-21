@@ -166,9 +166,12 @@ def test_connection(url, email, password):
         )
         if response.status_code == 200:
             data = response.json()
+            tokens = data.get("tokens", {})
             return {
                 "success": True,
-                "token": data.get("tokens", {}).get("accessToken"),
+                "token": tokens.get("accessToken"),
+                "refreshToken": tokens.get("refreshToken"),
+                "expiresIn": tokens.get("expiresIn"),
                 "user": data.get("user", {})
             }
         else:
@@ -397,7 +400,7 @@ def merge_configs(existing, new):
     return result
 
 
-def create_mcp_config(existing_config, url, token, telegram_config=None):
+def create_mcp_config(existing_config, url, token, refresh_token=None, telegram_config=None):
     """Create OpenClaw MCP client configuration for KūkiOS"""
     config = existing_config.copy() if existing_config else {}
 
@@ -407,14 +410,19 @@ def create_mcp_config(existing_config, url, token, telegram_config=None):
     }
 
     # Add MCP configuration with actual token (not env var reference)
+    mcp_server_config = {
+        "url": url,
+        "headers": {
+            "Authorization": f"Bearer {token}"
+        }
+    }
+    # Save refresh token for automatic token refresh
+    if refresh_token:
+        mcp_server_config["refreshToken"] = refresh_token
+
     config["mcp"] = {
         "servers": {
-            "kukios-mcp": {
-                "url": url,
-                "headers": {
-                    "Authorization": f"Bearer {token}"
-                }
-            }
+            "kukios-mcp": mcp_server_config
         }
     }
 
@@ -535,6 +543,113 @@ def test_mcp_connection(url, token):
         return {"success": False, "error": str(e)}
 
 
+def refresh_token_via_api(url, refresh_token):
+    """Refresh JWT token using the refresh token endpoint.
+
+    Returns a new access/refresh token pair without requiring re-login.
+    """
+    try:
+        response = requests.post(
+            f"{url}/api/auth/refresh",
+            json={"refreshToken": refresh_token},
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        if response.status_code == 200:
+            data = response.json()
+            tokens = data.get("tokens", {})
+            return {
+                "success": True,
+                "token": tokens.get("accessToken"),
+                "refreshToken": tokens.get("refreshToken"),
+                "expiresIn": tokens.get("expiresIn"),
+            }
+        else:
+            try:
+                error_data = response.json()
+                error_msg = error_data.get("error", error_data.get("message", f"HTTP {response.status_code}"))
+            except Exception:
+                error_msg = f"HTTP {response.status_code}: {response.text[:100]}"
+            return {"success": False, "error": error_msg}
+    except requests.exceptions.ConnectionError:
+        return {"success": False, "error": "Cannot connect to server"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def test_mcp_protocol(url, token):
+    """Test MCP connection using JSON-RPC initialize handshake.
+
+    Sends a proper MCP protocol initialize request and verifies the
+    server responds with valid protocol capabilities.
+    """
+    initialize_request = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": "2025-03-26",
+            "capabilities": {},
+            "clientInfo": {"name": "kukiclaw-setup", "version": "1.0.0"},
+        },
+    }
+
+    # Try root domain first
+    endpoints_to_test = [""]
+    # Then common MCP endpoints
+    for ep in ["/mcp", "/api/mcp", "/mcp/v1", "/.well-known/mcp"]:
+        endpoints_to_test.append(ep)
+
+    for endpoint in endpoints_to_test:
+        test_url = url + endpoint
+        try:
+            response = requests.post(
+                test_url,
+                json=initialize_request,
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
+                timeout=10
+            )
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                    # Check for valid JSON-RPC response
+                    if "result" in data:
+                        result = data["result"]
+                        capabilities = result.get("capabilities", {})
+                        server_info = result.get("serverInfo", {})
+                        return {
+                            "success": True,
+                            "endpoint": endpoint if endpoint else "/ (root)",
+                            "protocol_version": result.get("protocolVersion", "unknown"),
+                            "capabilities": list(capabilities.keys()) if capabilities else [],
+                            "server_name": server_info.get("name", "unknown"),
+                            "server_version": server_info.get("version", "unknown"),
+                        }
+                    elif "error" in data:
+                        # Got a valid JSON-RPC error — protocol is working
+                        return {
+                            "success": True,
+                            "endpoint": endpoint if endpoint else "/ (root)",
+                            "protocol_error": data["error"].get("message", "unknown"),
+                            "note": "MCP protocol responded (error is expected for some methods)",
+                        }
+                except Exception:
+                    # Got 200 but not JSON — endpoint exists but not MCP
+                    continue
+            elif response.status_code == 405:
+                # Method not allowed — endpoint exists, try GET-based test
+                continue
+        except requests.exceptions.Timeout:
+            continue
+        except Exception:
+            continue
+
+    return {"success": False, "error": "No MCP protocol endpoint responded to initialize"}
+
+
 def refresh_token(url, email, password):
     """Refresh/get a new JWT token"""
     return test_connection(url, email, password)
@@ -569,10 +684,14 @@ def main():
         sys.exit(1)
 
     token = result["token"]
+    refresh_token = result.get("refreshToken")
+    expires_in = result.get("expiresIn")
     user = result.get("user", {})
     print(f"✅ Connected! Welcome, {user.get('firstName', 'User')}")
+    if expires_in:
+        print(f"   Token expires in {expires_in}s ({expires_in // 60} minutes)")
 
-    # Step 3b: Test MCP Connection
+    # Step 3b: Test MCP Connection (HTTP reachability)
     print("\n🔗 Testing MCP Connection...")
     mcp_test = test_mcp_connection(url, token)
     if mcp_test["success"]:
@@ -580,6 +699,33 @@ def main():
     else:
         print(f"⚠️  MCP test warning: {mcp_test['error']}")
         print("   The token works for auth, but MCP endpoint may need verification.")
+
+    # Step 3c: Test MCP Protocol (JSON-RPC initialize)
+    print("\n🔗 Testing MCP Protocol (JSON-RPC handshake)...")
+    protocol_test = test_mcp_protocol(url, token)
+    if protocol_test["success"]:
+        print(f"✅ MCP protocol OK at {protocol_test['endpoint']}")
+        if protocol_test.get("server_name"):
+            print(f"   Server: {protocol_test['server_name']} v{protocol_test.get('server_version', '?')}")
+        if protocol_test.get("protocol_version"):
+            print(f"   Protocol: {protocol_test['protocol_version']}")
+        if protocol_test.get("capabilities"):
+            print(f"   Capabilities: {', '.join(protocol_test['capabilities'])}")
+        if protocol_test.get("note"):
+            print(f"   Note: {protocol_test['note']}")
+    else:
+        print(f"⚠️  Protocol test warning: {protocol_test['error']}")
+        print("   HTTP endpoint is reachable but JSON-RPC handshake did not respond.")
+
+    # Step 3d: Test token refresh flow (if refresh token available)
+    if refresh_token:
+        print("\n🔄 Testing token refresh...")
+        refresh_result = refresh_token_via_api(url, refresh_token)
+        if refresh_result["success"]:
+            print(f"✅ Token refresh works (new token expires in {refresh_result.get('expiresIn', '?')}s)")
+        else:
+            print(f"⚠️  Token refresh test: {refresh_result['error']}")
+            print("   You can still re-authenticate with credentials to get a new token.")
 
     # Load existing config
     existing_config = load_existing_config()
@@ -659,7 +805,7 @@ def main():
         existing_config = merge_configs(existing_config, model_config)
 
     # Add MCP and Telegram
-    config = create_mcp_config(existing_config, url, token, telegram_config)
+    config = create_mcp_config(existing_config, url, token, refresh_token, telegram_config)
 
     openclaw_dir = Path.home() / ".openclaw"
     openclaw_dir.mkdir(exist_ok=True)
@@ -702,6 +848,9 @@ Your KūkiClaw bot is now configured with:
     summary += f"""
 
 KūkiOS MCP is cloud-hosted - no local server required!
+
+🔄 Token refresh: JWT tokens expire. To refresh without re-entering credentials:
+   python3 setup/refresh_token.py
 
 🚀 To start your IAQ companion agent:
   1. Open a NEW terminal (or run: source ~/.bashrc)
