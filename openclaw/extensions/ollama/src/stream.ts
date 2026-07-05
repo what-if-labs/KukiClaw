@@ -212,7 +212,6 @@ const OLLAMA_OPTION_PARAM_KEYS = new Set([
   "typical_p",
   "repeat_last_n",
   "temperature",
-  "repeat_penalty",
   "presence_penalty",
   "frequency_penalty",
   "stop",
