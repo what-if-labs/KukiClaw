@@ -111,9 +111,9 @@ echo "   Git: $(git --version)"
 
 # Install OpenClaw
 echo ""
-echo "📦 Installing OpenClaw v2026.4.22..."
+echo "📦 Installing OpenClaw v2026.8.1..."
 cd ~
-npm install -g openclaw@2026.4.22
+npm install -g openclaw@2026.8.1
 
 # Verify OpenClaw is accessible
 if ! command -v openclaw &> /dev/null; then
@@ -123,7 +123,7 @@ fi
 
 # Verify installation
 if command -v openclaw &> /dev/null; then
-    echo "✅ OpenClaw installed: $(openclaw --version 2>/dev/null || echo 'v2026.4.22')"
+    echo "✅ OpenClaw installed: $(openclaw --version 2>/dev/null || echo 'v2026.8.1')"
 else
     echo "❌ OpenClaw installation failed"
     echo "   Try: source ~/.bashrc && openclaw --version"

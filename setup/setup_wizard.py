@@ -178,7 +178,7 @@ def test_connection(url, email, password):
             try:
                 error_data = response.json()
                 error_msg = error_data.get("message", f"HTTP {response.status_code}")
-            except:
+            except (json.JSONDecodeError, ValueError):
                 error_msg = f"HTTP {response.status_code}: {response.text[:100]}"
             return {
                 "success": False,
@@ -403,7 +403,7 @@ def create_mcp_config(existing_config, url, token, refresh_token=None, telegram_
 
     # Update meta
     config["meta"] = {
-        "lastTouchedVersion": "2026.4.22"
+        "lastTouchedVersion": "2026.8.1"
     }
 
     # Add MCP configuration with actual token (not env var reference)
@@ -512,7 +512,7 @@ def test_mcp_connection(url, token):
             )
             if response.status_code in [200, 401, 403]:
                 return {"success": True, "endpoint": "/ (root)", "status": response.status_code}
-        except:
+        except (requests.exceptions.RequestException, ValueError):
             pass
 
         # Try common MCP endpoints as fallback
@@ -532,7 +532,7 @@ def test_mcp_connection(url, token):
                 )
                 if response.status_code in [200, 401]:  # 401 means endpoint exists but needs auth
                     return {"success": True, "endpoint": endpoint, "status": response.status_code}
-            except:
+            except (requests.exceptions.RequestException, ValueError):
                 continue
 
         return {"success": False, "error": "No MCP endpoint found"}
