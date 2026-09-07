@@ -6,7 +6,7 @@ import {
   parseSessionEntries,
   type SessionEntry as PiSessionEntry,
   type SessionHeader,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import type { ReplyPayload } from "../types.js";
 import {
   isReplyPayload,

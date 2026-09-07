@@ -19,12 +19,12 @@ import {
 } from "../test-helpers.js";
 
 let sessionManagerModulePromise:
-  | Promise<typeof import("@mariozechner/pi-coding-agent")>
+  | Promise<typeof import("@earendil-works/pi-coding-agent")>
   | undefined;
 let gatewayConfigModulePromise: Promise<typeof import("../../config/config.js")> | undefined;
 
 export async function getSessionManagerModule() {
-  sessionManagerModulePromise ??= import("@mariozechner/pi-coding-agent");
+  sessionManagerModulePromise ??= import("@earendil-works/pi-coding-agent");
   return await sessionManagerModulePromise;
 }
 

@@ -250,7 +250,7 @@ export async function loadCompactHooksHarness(): Promise<{
     };
   });
 
-  vi.doMock("@mariozechner/pi-coding-agent", () => ({
+  vi.doMock("@earendil-works/pi-coding-agent", () => ({
     AuthStorage: function AuthStorage() {},
     ModelRegistry: function ModelRegistry() {},
     createAgentSession: vi.fn(async () => {

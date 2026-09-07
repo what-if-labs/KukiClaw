@@ -12,7 +12,7 @@ type RootPackageManifest = {
 const PI_PACKAGE_NAMES = [
   "@mariozechner/pi-agent-core",
   "@mariozechner/pi-ai",
-  "@mariozechner/pi-coding-agent",
+  "@earendil-works/pi-coding-agent",
   "@mariozechner/pi-tui",
 ] as const;
 

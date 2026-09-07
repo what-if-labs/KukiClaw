@@ -1680,7 +1680,7 @@
     "@lydell/node-pty": "1.2.0-beta.12",
     "@mariozechner/pi-agent-core": "0.73.0",
     "@mariozechner/pi-ai": "0.73.0",
-    "@mariozechner/pi-coding-agent": "0.73.0",
+    "@earendil-works/pi-coding-agent": "0.85.1",
     "@mariozechner/pi-tui": "0.73.0",
     "@modelcontextprotocol/sdk": "1.29.0",
     "@mozilla/readability": "^0.6.0",
@@ -1779,7 +1779,7 @@
       "form-data": "2.5.6",
       "minimatch": "10.2.5",
       "path-to-regexp": "8.4.0",
-      "qs": "6.15.2",
+      "qs": "6.16.0",
       "node-domexception": "npm:@nolyfill/domexception@1.0.28",
       "typebox": "1.1.37",
       "tar": "7.5.22",
@@ -1797,13 +1797,13 @@
       "@grpc/grpc-js": "1.14.4",
       "@opentelemetry/sdk-node": "0.217.0",
       "@opentelemetry/exporter-prometheus": "0.217.0",
-      "fast-uri": "3.1.5",
+      "fast-uri": "4.1.4",
       "sharp": "0.35.0",
       "pdfjs-dist": "6.2.108",
       "ip-address": "10.3.1",
       "@opentelemetry/propagator-jaeger": "2.9.0",
       "undici": "7.29.0",
-      "dompurify": "3.4.12",
+      "dompurify": "3.4.15",
       "markdown-it": "14.2.0",
       "@opentelemetry/core": "2.8.0",
       "body-parser": "2.3.0",
@@ -1829,7 +1829,7 @@
       "tree-sitter-bash"
     ],
     "packageExtensions": {
-      "@mariozechner/pi-coding-agent": {
+      "@earendil-works/pi-coding-agent": {
         "dependencies": {
           "strip-ansi": "^7.2.0"
         }

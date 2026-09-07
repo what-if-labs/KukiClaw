@@ -226,7 +226,7 @@ export function getHoisted(): AttemptSpawnWorkspaceHoisted {
   return hoisted;
 }
 
-vi.mock("@mariozechner/pi-coding-agent", () => {
+vi.mock("@earendil-works/pi-coding-agent", () => {
   function AuthStorage() {}
   class DefaultResourceLoader {
     async reload() {}

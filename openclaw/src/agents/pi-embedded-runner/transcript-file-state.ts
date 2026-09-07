@@ -10,7 +10,7 @@ import {
   type SessionContext,
   type SessionEntry,
   type SessionHeader,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 
 type BranchSummaryEntry = Extract<SessionEntry, { type: "branch_summary" }>;
 type CompactionEntry = Extract<SessionEntry, { type: "compaction" }>;

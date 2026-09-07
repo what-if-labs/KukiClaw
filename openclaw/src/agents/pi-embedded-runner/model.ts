@@ -4,7 +4,7 @@ import {
   ModelRegistry as PiModelRegistryClass,
   type AuthStorage,
   type ModelRegistry,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import type { ProviderRuntimeModel } from "../../plugins/provider-runtime-model.types.js";
 import {
