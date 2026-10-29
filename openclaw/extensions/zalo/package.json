@@ -8,7 +8,7 @@
   },
   "type": "module",
   "dependencies": {
-    "undici": "8.9.0"
+    "undici": "8.12.2"
   },
   "devDependencies": {
     "@openclaw/plugin-sdk": "workspace:*",
